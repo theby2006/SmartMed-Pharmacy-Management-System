@@ -1,0 +1,9 @@
+/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/obj/Debug/net48/SmartMed.Models.GeneratedMSBuildEditorConfig.editorconfig
+/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/obj/Debug/net48/SmartMed.Models.AssemblyInfoInputs.cache
+/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/obj/Debug/net48/SmartMed.Models.AssemblyInfo.cs
+/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/obj/Debug/net48/SmartMed.Models.csproj.CoreCompileInputs.cache
+/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/obj/Debug/net48/SmartMed.Models.sourcelink.json
+/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/obj/Debug/net48/SmartMed.Models.dll
+/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/bin/Debug/net48/SmartMed.Models.dll
+/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/bin/Debug/net48/SmartMed.Models.pdb
+/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/obj/Debug/net48/SmartMed.Models.pdb

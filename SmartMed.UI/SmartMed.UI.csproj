@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>SmartMed.UI</RootNamespace>
+    <AssemblyName>SmartMed.UI</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartMed.BLL\SmartMed.BLL.csproj" />
+    <ProjectReference Include="..\SmartMed.Models\SmartMed.Models.csproj" />
+    <ProjectReference Include="..\SmartMed.Common\SmartMed.Common.csproj" />
+    <ProjectReference Include="..\SmartMed.Reports\SmartMed.Reports.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,385 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.UI/SmartMed.UI.csproj": {}
+  },
+  "projects": {
+    "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.BLL/SmartMed.BLL.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.BLL/SmartMed.BLL.csproj",
+        "projectName": "SmartMed.BLL",
+        "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.BLL/SmartMed.BLL.csproj",
+        "packagesPath": "/Users/theby/.nuget/packages/",
+        "outputPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.BLL/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/theby/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net48"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {
+              "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/SmartMed.Common.csproj": {
+                "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/SmartMed.Common.csproj"
+              },
+              "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.DAL/SmartMed.DAL.csproj": {
+                "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.DAL/SmartMed.DAL.csproj"
+              },
+              "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/SmartMed.Models.csproj": {
+                "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/SmartMed.Models.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies.net48": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.203/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/SmartMed.Common.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/SmartMed.Common.csproj",
+        "projectName": "SmartMed.Common",
+        "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/SmartMed.Common.csproj",
+        "packagesPath": "/Users/theby/.nuget/packages/",
+        "outputPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/theby/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net48"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies.net48": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )"
+            },
+            "System.Configuration.ConfigurationManager": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.203/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.DAL/SmartMed.DAL.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.DAL/SmartMed.DAL.csproj",
+        "projectName": "SmartMed.DAL",
+        "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.DAL/SmartMed.DAL.csproj",
+        "packagesPath": "/Users/theby/.nuget/packages/",
+        "outputPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.DAL/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/theby/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net48"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {
+              "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/SmartMed.Common.csproj": {
+                "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/SmartMed.Common.csproj"
+              },
+              "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/SmartMed.Models.csproj": {
+                "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/SmartMed.Models.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies.net48": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.203/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/SmartMed.Models.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/SmartMed.Models.csproj",
+        "projectName": "SmartMed.Models",
+        "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/SmartMed.Models.csproj",
+        "packagesPath": "/Users/theby/.nuget/packages/",
+        "outputPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/theby/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net48"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies.net48": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.203/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Reports/SmartMed.Reports.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Reports/SmartMed.Reports.csproj",
+        "projectName": "SmartMed.Reports",
+        "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Reports/SmartMed.Reports.csproj",
+        "packagesPath": "/Users/theby/.nuget/packages/",
+        "outputPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Reports/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/theby/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net48"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {
+              "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/SmartMed.Common.csproj": {
+                "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/SmartMed.Common.csproj"
+              },
+              "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/SmartMed.Models.csproj": {
+                "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/SmartMed.Models.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies.net48": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.203/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.UI/SmartMed.UI.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.UI/SmartMed.UI.csproj",
+        "projectName": "SmartMed.UI",
+        "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.UI/SmartMed.UI.csproj",
+        "packagesPath": "/Users/theby/.nuget/packages/",
+        "outputPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.UI/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/theby/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net48"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {
+              "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.BLL/SmartMed.BLL.csproj": {
+                "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.BLL/SmartMed.BLL.csproj"
+              },
+              "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/SmartMed.Common.csproj": {
+                "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Common/SmartMed.Common.csproj"
+              },
+              "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/SmartMed.Models.csproj": {
+                "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Models/SmartMed.Models.csproj"
+              },
+              "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Reports/SmartMed.Reports.csproj": {
+                "projectPath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.Reports/SmartMed.Reports.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies.net48": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.203/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

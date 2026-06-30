@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>SmartMed.BLL</RootNamespace>
+    <AssemblyName>SmartMed.BLL</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartMed.DAL\SmartMed.DAL.csproj" />
+    <ProjectReference Include="..\SmartMed.Models\SmartMed.Models.csproj" />
+    <ProjectReference Include="..\SmartMed.Common\SmartMed.Common.csproj" />
+  </ItemGroup>
+</Project>

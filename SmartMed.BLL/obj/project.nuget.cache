@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "bvLqvDyMt/c=",
+  "success": true,
+  "projectFilePath": "/Users/theby/Documents/THEBIKAN/SmartMed-Pharmacy-Management-System/SmartMed.BLL/SmartMed.BLL.csproj",
+  "expectedPackageFiles": [
+    "/Users/theby/.nuget/packages/microsoft.netframework.referenceassemblies/1.0.3/microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+    "/Users/theby/.nuget/packages/microsoft.netframework.referenceassemblies.net48/1.0.3/microsoft.netframework.referenceassemblies.net48.1.0.3.nupkg.sha512",
+    "/Users/theby/.nuget/packages/system.configuration.configurationmanager/8.0.0/system.configuration.configurationmanager.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

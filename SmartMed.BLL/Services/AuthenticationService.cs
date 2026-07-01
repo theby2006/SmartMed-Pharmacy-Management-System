@@ -5,6 +5,7 @@ using SmartMed.Common.Constants;
 using SmartMed.Common.Exceptions;
 using SmartMed.Common.Helpers;
 using SmartMed.DAL.Interfaces;
+using SmartMed.Models.Enums;
 using SmartMed.Models.Entities;
 using SmartMed.Models.Results;
 using SmartMed.Models.Session;
@@ -135,7 +136,7 @@ namespace SmartMed.BLL.Services
 
             User user = _userRepository.GetByUsername(identifier);
 
-            if (user == null || user.Role != Models.Enums.RoleType.Customer)
+            if (user == null || user.Role != RoleType.Customer)
             {
                 string machineName = Environment.MachineName;
                 _auditLogRepository.LogFailedAttempt(identifier, machineName, "Customer not found");

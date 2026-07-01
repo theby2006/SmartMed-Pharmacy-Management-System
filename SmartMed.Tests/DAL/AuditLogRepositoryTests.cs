@@ -3,6 +3,8 @@ using SmartMed.Common.Exceptions;
 using SmartMed.DAL.Infrastructure;
 using SmartMed.DAL.Interfaces;
 using SmartMed.DAL.Repositories;
+using SmartMed.Common.Configuration;
+using SmartMed.Common.Constants;
 
 namespace SmartMed.Tests.DAL
 {
@@ -18,8 +20,7 @@ namespace SmartMed.Tests.DAL
         [TestMethod]
         public void LogLogin_ShouldThrow_WhenUsernameIsNull()
         {
-            IDbConnectionFactory factory = new SqlConnectionFactory(
-                "Data Source=.;Initial Catalog=SmartMedDb;Integrated Security=True");
+            IDbConnectionFactory factory = new SqlConnectionFactory(AppSettings.GetConnectionString(ConfigKeys.PrimaryConnectionStringName));
             IAuditLogRepository repository = new AuditLogRepository(factory);
 
             Assert.ThrowsException<ValidationException>(() =>
@@ -29,8 +30,7 @@ namespace SmartMed.Tests.DAL
         [TestMethod]
         public void LogLogin_ShouldThrow_WhenMachineNameIsNull()
         {
-            IDbConnectionFactory factory = new SqlConnectionFactory(
-                "Data Source=.;Initial Catalog=SmartMedDb;Integrated Security=True");
+            IDbConnectionFactory factory = new SqlConnectionFactory(AppSettings.GetConnectionString(ConfigKeys.PrimaryConnectionStringName));
             IAuditLogRepository repository = new AuditLogRepository(factory);
 
             Assert.ThrowsException<ValidationException>(() =>
@@ -40,8 +40,7 @@ namespace SmartMed.Tests.DAL
         [TestMethod]
         public void LogLogout_ShouldThrow_WhenUsernameIsWhitespace()
         {
-            IDbConnectionFactory factory = new SqlConnectionFactory(
-                "Data Source=.;Initial Catalog=SmartMedDb;Integrated Security=True");
+            IDbConnectionFactory factory = new SqlConnectionFactory(AppSettings.GetConnectionString(ConfigKeys.PrimaryConnectionStringName));
             IAuditLogRepository repository = new AuditLogRepository(factory);
 
             Assert.ThrowsException<ValidationException>(() =>

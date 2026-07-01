@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using SmartMed.Common.Exceptions;
 using SmartMed.Common.Helpers;
@@ -165,6 +166,150 @@ namespace SmartMed.DAL.Repositories
             catch (SqlException exception)
             {
                 throw new DataAccessException("Failed to update last login time.", exception);
+            }
+        }
+
+        public List<User> GetAll()
+        {
+            const string sql = "SELECT Id, Username, PasswordHash, PasswordSalt, DisplayName, Role, Email, " +
+                               "FailedLoginAttempts, LockedUntil, LastLogin, IsActive, CreatedDate, UpdatedDate " +
+                               "FROM Users ORDER BY DisplayName";
+            try
+            {
+                using (SqlConnection connection = _connectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        List<User> users = new List<User>();
+                        while (reader.Read())
+                            users.Add(MapUser(reader));
+                        return users;
+                    }
+                }
+            }
+            catch (SqlException exception)
+            {
+                throw new DataAccessException("Failed to retrieve all users.", exception);
+            }
+        }
+
+        public List<User> Search(string keyword)
+        {
+            Guard.AgainstNullOrWhiteSpace(keyword, nameof(keyword));
+            const string sql = "SELECT Id, Username, PasswordHash, PasswordSalt, DisplayName, Role, Email, " +
+                               "FailedLoginAttempts, LockedUntil, LastLogin, IsActive, CreatedDate, UpdatedDate " +
+                               "FROM Users WHERE DisplayName LIKE @Keyword OR Username LIKE @Keyword OR Email LIKE @Keyword ORDER BY DisplayName";
+            try
+            {
+                using (SqlConnection connection = _connectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@Keyword", $"%{keyword}%");
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        List<User> users = new List<User>();
+                        while (reader.Read())
+                            users.Add(MapUser(reader));
+                        return users;
+                    }
+                }
+            }
+            catch (SqlException exception)
+            {
+                throw new DataAccessException("Failed to search users.", exception);
+            }
+        }
+
+        public int Add(User user)
+        {
+            Guard.AgainstNull(user, nameof(user));
+            const string sql = "INSERT INTO Users (Username, PasswordHash, PasswordSalt, DisplayName, Role, Email, IsActive, CreatedDate) " +
+                               "VALUES (@Username, @PasswordHash, @PasswordSalt, @DisplayName, @Role, @Email, 1, GETUTCDATE()); SELECT CAST(SCOPE_IDENTITY() AS INT)";
+            try
+            {
+                using (SqlConnection connection = _connectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", user.Username);
+                    command.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
+                    command.Parameters.AddWithValue("@PasswordSalt", user.PasswordSalt);
+                    command.Parameters.AddWithValue("@DisplayName", user.DisplayName);
+                    command.Parameters.AddWithValue("@Role", (int)user.Role);
+                    command.Parameters.AddWithValue("@Email", (object)user.Email ?? DBNull.Value);
+                    connection.Open();
+                    return (int)command.ExecuteScalar();
+                }
+            }
+            catch (SqlException exception)
+            {
+                throw new DataAccessException("Failed to add user.", exception);
+            }
+        }
+
+        public void Update(User user)
+        {
+            Guard.AgainstNull(user, nameof(user));
+            const string sql = "UPDATE Users SET DisplayName = @DisplayName, Role = @Role, Email = @Email, UpdatedDate = GETUTCDATE() WHERE Id = @Id";
+            try
+            {
+                using (SqlConnection connection = _connectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", user.Id);
+                    command.Parameters.AddWithValue("@DisplayName", user.DisplayName);
+                    command.Parameters.AddWithValue("@Role", (int)user.Role);
+                    command.Parameters.AddWithValue("@Email", (object)user.Email ?? DBNull.Value);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException exception)
+            {
+                throw new DataAccessException("Failed to update user.", exception);
+            }
+        }
+
+        public void UpdatePassword(int userId, string passwordHash, string passwordSalt)
+        {
+            const string sql = "UPDATE Users SET PasswordHash = @PasswordHash, PasswordSalt = @PasswordSalt, FailedLoginAttempts = 0, LockedUntil = NULL, UpdatedDate = GETUTCDATE() WHERE Id = @Id";
+            try
+            {
+                using (SqlConnection connection = _connectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", userId);
+                    command.Parameters.AddWithValue("@PasswordHash", passwordHash);
+                    command.Parameters.AddWithValue("@PasswordSalt", passwordSalt);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException exception)
+            {
+                throw new DataAccessException("Failed to update password.", exception);
+            }
+        }
+
+        public void UpdateActiveStatus(int userId, bool isActive)
+        {
+            const string sql = "UPDATE Users SET IsActive = @IsActive, UpdatedDate = GETUTCDATE() WHERE Id = @Id";
+            try
+            {
+                using (SqlConnection connection = _connectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", userId);
+                    command.Parameters.AddWithValue("@IsActive", isActive);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException exception)
+            {
+                throw new DataAccessException("Failed to update user active status.", exception);
             }
         }
 

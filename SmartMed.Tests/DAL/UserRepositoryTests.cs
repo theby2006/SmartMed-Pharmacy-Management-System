@@ -3,6 +3,8 @@ using SmartMed.Common.Exceptions;
 using SmartMed.DAL.Infrastructure;
 using SmartMed.DAL.Interfaces;
 using SmartMed.DAL.Repositories;
+using SmartMed.Common.Configuration;
+using SmartMed.Common.Constants;
 
 namespace SmartMed.Tests.DAL
 {
@@ -18,8 +20,7 @@ namespace SmartMed.Tests.DAL
         [TestMethod]
         public void GetByUsername_ShouldThrow_WhenUsernameIsNull()
         {
-            IDbConnectionFactory factory = new SqlConnectionFactory(
-                "Data Source=.;Initial Catalog=SmartMedDb;Integrated Security=True");
+            IDbConnectionFactory factory = new SqlConnectionFactory(AppSettings.GetConnectionString(ConfigKeys.PrimaryConnectionStringName));
             IUserRepository repository = new UserRepository(factory);
 
             Assert.ThrowsException<ValidationException>(() => repository.GetByUsername(null));
@@ -28,8 +29,7 @@ namespace SmartMed.Tests.DAL
         [TestMethod]
         public void GetByUsername_ShouldThrow_WhenUsernameIsWhitespace()
         {
-            IDbConnectionFactory factory = new SqlConnectionFactory(
-                "Data Source=.;Initial Catalog=SmartMedDb;Integrated Security=True");
+            IDbConnectionFactory factory = new SqlConnectionFactory(AppSettings.GetConnectionString(ConfigKeys.PrimaryConnectionStringName));
             IUserRepository repository = new UserRepository(factory);
 
             Assert.ThrowsException<ValidationException>(() => repository.GetByUsername("   "));

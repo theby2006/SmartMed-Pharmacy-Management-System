@@ -12,16 +12,40 @@ namespace SmartMed.UI.Forms
     {
         private readonly ISessionManager _sessionManager;
         private readonly IAuthenticationService _authService;
+        private readonly ISalesService _salesService;
+        private readonly IPaymentService _paymentService;
+        private readonly IPricingService _pricingService;
+        private readonly IMedicineService _medicineService;
+        private readonly IInventoryService _inventoryService;
+        private readonly ISaleNumberGenerator _saleNumberGenerator;
+        private readonly IReportService _reportService;
         private ToolStripMenuItem _administrationMenu;
         private ToolStripMenuItem _prescriptionsMenu;
         private ToolStripMenuItem _salesMenu;
         private ToolStripMenuItem _reportsMenu;
         private ToolStripStatusLabel _userStatusLabel;
 
-        public MainShellForm(ApplicationStartupContext startupContext, ISessionManager sessionManager, IAuthenticationService authService)
+        public MainShellForm(
+            ApplicationStartupContext startupContext,
+            ISessionManager sessionManager,
+            IAuthenticationService authService,
+            ISalesService salesService,
+            IPaymentService paymentService,
+            IPricingService pricingService,
+             IMedicineService medicineService,
+             IInventoryService inventoryService,
+             ISaleNumberGenerator saleNumberGenerator,
+             IReportService reportService)
         {
             _sessionManager = sessionManager;
             _authService = authService;
+            _salesService = salesService;
+            _paymentService = paymentService;
+            _pricingService = pricingService;
+            _medicineService = medicineService;
+            _inventoryService = inventoryService;
+            _saleNumberGenerator = saleNumberGenerator;
+            _reportService = reportService;
 
             Text = startupContext.ApplicationName;
             StartPosition = FormStartPosition.CenterScreen;
@@ -101,12 +125,13 @@ namespace SmartMed.UI.Forms
             menuStrip.Items.Add(_prescriptionsMenu);
 
             _salesMenu = new ToolStripMenuItem("Sales");
-            _salesMenu.DropDownItems.Add(new ToolStripMenuItem("New Sale", null, (s, e) => { }));
+            _salesMenu.DropDownItems.Add(new ToolStripMenuItem("New Sale", null, (s, e) => OpenSalesForm()));
             _salesMenu.DropDownItems.Add(new ToolStripMenuItem("Sales History", null, (s, e) => { }));
             menuStrip.Items.Add(_salesMenu);
 
             _reportsMenu = new ToolStripMenuItem("Reports");
-            _reportsMenu.DropDownItems.Add(new ToolStripMenuItem("Generate Report", null, (s, e) => { }));
+            _reportsMenu.DropDownItems.Add(new ToolStripMenuItem("Dashboard", null, (s, e) => OpenDashboardForm()));
+            _reportsMenu.DropDownItems.Add(new ToolStripMenuItem("Generate Report", null, (s, e) => OpenReportsForm()));
             menuStrip.Items.Add(_reportsMenu);
 
             return menuStrip;
@@ -138,6 +163,37 @@ namespace SmartMed.UI.Forms
             _prescriptionsMenu.Visible = isAdmin || isPharmacist;
             _salesMenu.Visible = isAdmin || isCashier;
             _reportsMenu.Visible = isAdmin;
+        }
+
+        private void OpenDashboardForm()
+        {
+            using (DashboardForm dashboardForm = new DashboardForm(_reportService))
+            {
+                dashboardForm.ShowDialog(this);
+            }
+        }
+
+        private void OpenReportsForm()
+        {
+            using (ReportsForm reportsForm = new ReportsForm(_reportService))
+            {
+                reportsForm.ShowDialog(this);
+            }
+        }
+
+        private void OpenSalesForm()
+        {
+            using (SalesForm salesForm = new SalesForm(
+                _salesService,
+                _paymentService,
+                _pricingService,
+                _medicineService,
+                _inventoryService,
+                _sessionManager,
+                _saleNumberGenerator))
+            {
+                salesForm.ShowDialog(this);
+            }
         }
 
         private void Logout_Click(object sender, EventArgs e)

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartMed.DAL")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+09491ee73ccdd8337a94ebb2bf47dfe197cdf128")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3d18e72831e4335450d42615359e2e59001bbe4e")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartMed.DAL")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartMed.DAL")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

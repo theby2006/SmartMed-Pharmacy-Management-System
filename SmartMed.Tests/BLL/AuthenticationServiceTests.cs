@@ -8,6 +8,7 @@ using SmartMed.Models.Enums;
 using SmartMed.Models.Results;
 using SmartMed.Models.Session;
 using System;
+using System.Collections.Generic;
 
 namespace SmartMed.Tests.BLL
 {
@@ -306,6 +307,18 @@ namespace SmartMed.Tests.BLL
         {
             UpdateLastLoginCalled = true;
         }
+
+        public List<User> GetAll() => new List<User>();
+
+        public List<User> Search(string keyword) => new List<User>();
+
+        public int Add(User user) => 0;
+
+        public void Update(User user) { }
+
+        public void UpdatePassword(int userId, string passwordHash, string passwordSalt) { }
+
+        public void UpdateActiveStatus(int userId, bool isActive) { }
     }
 
     internal class MockPasswordHasher : IPasswordHasher
@@ -323,61 +336,6 @@ namespace SmartMed.Tests.BLL
         public string GenerateSalt()
         {
             return Convert.ToBase64String(new byte[16]);
-        }
-    }
-
-    internal class MockSessionManager : ISessionManager
-    {
-        private SessionContext _currentSession;
-
-        public SessionContext StartSession(User user)
-        {
-            _currentSession = new SessionContext
-            {
-                UserId = user.Id,
-                Username = user.Username,
-                DisplayName = user.DisplayName,
-                Role = user.Role,
-                LoginTimeUtc = DateTime.UtcNow,
-                LastActivityTimeUtc = DateTime.UtcNow
-            };
-            return _currentSession;
-        }
-
-        public void EndSession()
-        {
-            _currentSession = null;
-        }
-
-        public SessionContext CurrentSession => _currentSession;
-
-        public bool IsActive => _currentSession != null;
-
-        public bool HasRole(RoleType role)
-        {
-            return _currentSession != null && _currentSession.Role == role;
-        }
-    }
-
-    internal class MockAuditLogRepository : IAuditLogRepository
-    {
-        public bool LogLoginCalled { get; private set; }
-        public bool LogLogoutCalled { get; private set; }
-        public bool LogFailedAttemptCalled { get; private set; }
-
-        public void LogLogin(int userId, string username, string machineName)
-        {
-            LogLoginCalled = true;
-        }
-
-        public void LogLogout(int? userId, string username, string machineName)
-        {
-            LogLogoutCalled = true;
-        }
-
-        public void LogFailedAttempt(string username, string machineName, string details)
-        {
-            LogFailedAttemptCalled = true;
         }
     }
 }

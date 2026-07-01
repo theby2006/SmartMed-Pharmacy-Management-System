@@ -18,13 +18,33 @@ namespace SmartMed.UI.Bootstrap
         private IAuditLogRepository _auditLogRepository;
         private ISessionManager _sessionManager;
         private IAuthenticationService _authService;
+        private IMedicineService _medicineService;
+        private IMedicineCategoryService _medicineCategoryService;
+        private ISupplierService _supplierService;
+        private IPurchaseService _purchaseService;
+        private IPricingService _pricingService;
+        private IInventoryService _inventoryService;
+        private ISalesService _salesService;
+        private IPaymentService _paymentService;
+        private ISaleNumberGenerator _saleNumberGenerator;
+        private IReportService _reportService;
 
         public MainShellForm BuildMainForm()
         {
             RegisterServices();
             ShowLoginFlow();
             ApplicationStartupContext startupContext = BuildStartupContext();
-            return new MainShellForm(startupContext, _sessionManager, _authService);
+            return new MainShellForm(
+                startupContext,
+                _sessionManager,
+                _authService,
+                _salesService,
+                _paymentService,
+                _pricingService,
+                _medicineService,
+                _inventoryService,
+                _saleNumberGenerator,
+                _reportService);
         }
 
         private void RegisterServices()
@@ -37,6 +57,44 @@ namespace SmartMed.UI.Bootstrap
             _auditLogRepository = new AuditLogRepository(dbConnectionFactory);
             _sessionManager = new SessionManager();
             _authService = new AuthenticationService(_userRepository, _passwordHasher, _sessionManager, _auditLogRepository);
+
+            IMedicineCategoryRepository medicineCategoryRepo = new MedicineCategoryRepository(dbConnectionFactory);
+            IMedicineRepository medicineRepo = new MedicineRepository(dbConnectionFactory);
+            _medicineCategoryService = new MedicineCategoryService(medicineCategoryRepo, medicineRepo);
+            _medicineService = new MedicineService(medicineRepo, medicineCategoryRepo);
+            _supplierService = new SupplierService(new SupplierRepository(dbConnectionFactory), _auditLogRepository, _sessionManager);
+
+            _pricingService = new PricingService();
+
+            IStockBatchRepository stockBatchRepo = new StockBatchRepository(dbConnectionFactory);
+            IStockMovementRepository stockMovementRepo = new StockMovementRepository(dbConnectionFactory);
+            _inventoryService = new InventoryService(stockBatchRepo, stockMovementRepo, medicineRepo, dbConnectionFactory);
+
+            _purchaseService = new PurchaseService(
+                new PurchaseRepository(dbConnectionFactory),
+                new PurchaseItemRepository(dbConnectionFactory),
+                stockBatchRepo,
+                stockMovementRepo,
+                medicineRepo,
+                new SupplierRepository(dbConnectionFactory),
+                dbConnectionFactory);
+
+            _saleNumberGenerator = new SaleNumberGenerator(dbConnectionFactory);
+            _paymentService = new PaymentService(new PaymentRepository(dbConnectionFactory));
+
+            IReportRepository reportRepository = new ReportRepository(dbConnectionFactory);
+            _reportService = new ReportService(reportRepository);
+
+            _salesService = new SalesService(
+                new SaleRepository(dbConnectionFactory),
+                new SaleItemRepository(dbConnectionFactory),
+                new PaymentRepository(dbConnectionFactory),
+                stockMovementRepo,
+                medicineRepo,
+                _inventoryService,
+                _pricingService,
+                dbConnectionFactory,
+                _sessionManager);
         }
 
         private void ShowLoginFlow()

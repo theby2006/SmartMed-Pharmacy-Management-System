@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using SmartMed.Models.Entities;
 
 namespace SmartMed.DAL.Interfaces
@@ -16,5 +17,17 @@ namespace SmartMed.DAL.Interfaces
         void SetLockedUntil(int userId, DateTime? lockedUntil);
 
         void UpdateLastLogin(int userId, DateTime loginTime);
+
+        List<User> GetAll();
+
+        List<User> Search(string keyword);
+
+        int Add(User user);
+
+        void Update(User user);
+
+        void UpdatePassword(int userId, string passwordHash, string passwordSalt);
+
+        void UpdateActiveStatus(int userId, bool isActive);
     }
 }

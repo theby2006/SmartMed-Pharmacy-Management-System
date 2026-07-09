@@ -138,7 +138,21 @@ namespace SmartMed.BLL.Services
                 return OperationResult<SessionContext>.Failure("Invalid PIN format.");
             }
 
-            Customer customer = _customerRepository.GetByPhoneOrEmail(identifier);
+            System.Diagnostics.Debug.WriteLine(
+                $"[CUSTOMER-LOOKUP-DEBUG] AuthenticationService.LoginCustomer: identifier='{identifier}', customerPinEnabled={customerPinEnabled}"); // TEMPORARY — remove after diagnosing
+
+            Customer customer;
+            try
+            {
+                customer = _customerRepository.GetByPhoneOrEmail(identifier);
+            }
+            catch (DataAccessException ex)
+            {
+                string machineName = Environment.MachineName;
+                _auditLogRepository.LogFailedAttempt(identifier, machineName, "Customer lookup failed: " + ex.Message);
+                return OperationResult<SessionContext>.Failure(
+                    "A system error occurred while looking up the customer. Please try again.");
+            }
 
             if (customer == null || !customer.IsActive)
             {

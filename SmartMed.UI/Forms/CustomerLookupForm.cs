@@ -182,9 +182,15 @@ namespace SmartMed.UI.Forms
             btnLookup.Enabled = false;
 
             string pin = txtPin != null ? txtPin.Text : null;
+            string rawIdentifier = txtPhoneOrEmail.Text;
+            string trimmedIdentifier = rawIdentifier.Trim();
+
+            // TEMPORARY — remove after diagnosing
+            System.Diagnostics.Debug.WriteLine(
+                $"[CUSTOMER-LOOKUP-DEBUG] CustomerLookupForm.BtnLookup_Click: raw='{rawIdentifier}', trimmed='{trimmedIdentifier}'");
 
             OperationResult<SessionContext> result = _authService.LoginCustomer(
-                txtPhoneOrEmail.Text.Trim(),
+                trimmedIdentifier,
                 pin);
 
             if (result.IsSuccess)

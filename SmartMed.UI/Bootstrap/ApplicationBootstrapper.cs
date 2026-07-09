@@ -7,6 +7,7 @@ using SmartMed.DAL.Infrastructure;
 using SmartMed.DAL.Interfaces;
 using SmartMed.DAL.Repositories;
 using SmartMed.Models.Diagnostics;
+using SmartMed.Models.Enums;
 using SmartMed.UI.Forms;
 
 namespace SmartMed.UI.Bootstrap
@@ -15,6 +16,7 @@ namespace SmartMed.UI.Bootstrap
     {
         private IPasswordHasher _passwordHasher;
         private IUserRepository _userRepository;
+        private ICustomerRepository _customerRepository;
         private IAuditLogRepository _auditLogRepository;
         private ISessionManager _sessionManager;
         private IAuthenticationService _authService;
@@ -28,12 +30,35 @@ namespace SmartMed.UI.Bootstrap
         private IPaymentService _paymentService;
         private ISaleNumberGenerator _saleNumberGenerator;
         private IReportService _reportService;
+        private ICustomerService _customerService;
+        private IOrderService _orderService;
+        private IOrderNumberGenerator _orderNumberGenerator;
+        private IPrescriptionService _prescriptionService;
+        private IMedicineSearchService _medicineSearchService;
 
-        public MainShellForm BuildMainForm()
+        public Form BuildMainForm()
         {
             RegisterServices();
             ShowLoginFlow();
             ApplicationStartupContext startupContext = BuildStartupContext();
+
+            bool isCustomer = _sessionManager.CurrentSession?.Role == RoleType.Customer;
+
+            if (isCustomer)
+            {
+                return new CustomerShellForm(
+                    startupContext,
+                    _sessionManager,
+                    _authService,
+                    _medicineService,
+                    _medicineCategoryService,
+                    _medicineSearchService,
+                    _orderService,
+                    _prescriptionService,
+                    _pricingService,
+                    _reportService);
+            }
+
             return new MainShellForm(
                 startupContext,
                 _sessionManager,
@@ -42,9 +67,14 @@ namespace SmartMed.UI.Bootstrap
                 _paymentService,
                 _pricingService,
                 _medicineService,
+                _medicineCategoryService,
+                _supplierService,
+                _purchaseService,
                 _inventoryService,
                 _saleNumberGenerator,
-                _reportService);
+                _reportService,
+                _customerService,
+                _orderService);
         }
 
         private void RegisterServices()
@@ -54,9 +84,10 @@ namespace SmartMed.UI.Bootstrap
 
             _passwordHasher = new PasswordHasher();
             _userRepository = new UserRepository(dbConnectionFactory);
+            _customerRepository = new CustomerRepository(dbConnectionFactory);
             _auditLogRepository = new AuditLogRepository(dbConnectionFactory);
             _sessionManager = new SessionManager();
-            _authService = new AuthenticationService(_userRepository, _passwordHasher, _sessionManager, _auditLogRepository);
+            _authService = new AuthenticationService(_userRepository, _customerRepository, _passwordHasher, _sessionManager, _auditLogRepository);
 
             IMedicineCategoryRepository medicineCategoryRepo = new MedicineCategoryRepository(dbConnectionFactory);
             IMedicineRepository medicineRepo = new MedicineRepository(dbConnectionFactory);
@@ -95,11 +126,30 @@ namespace SmartMed.UI.Bootstrap
                 _pricingService,
                 dbConnectionFactory,
                 _sessionManager);
+
+            _customerService = new CustomerService(_customerRepository, _passwordHasher, _auditLogRepository, _sessionManager);
+
+            IOrderRepository orderRepository = new OrderRepository(dbConnectionFactory);
+            IOrderItemRepository orderItemRepository = new OrderItemRepository(dbConnectionFactory);
+            _orderNumberGenerator = new OrderNumberGenerator(dbConnectionFactory);
+            _orderService = new OrderService(
+                orderRepository,
+                orderItemRepository,
+                medicineRepo,
+                stockMovementRepo,
+                _inventoryService,
+                _orderNumberGenerator,
+                dbConnectionFactory,
+                _auditLogRepository,
+                _sessionManager);
+
+            _prescriptionService = new PrescriptionService(orderRepository, _auditLogRepository, _sessionManager);
+            _medicineSearchService = new MedicineSearchService(medicineRepo);
         }
 
         private void ShowLoginFlow()
         {
-            using (LoginForm loginForm = new LoginForm(_authService))
+            using (LoginForm loginForm = new LoginForm(_authService, _customerService))
             {
                 if (loginForm.ShowDialog() != DialogResult.OK)
                 {

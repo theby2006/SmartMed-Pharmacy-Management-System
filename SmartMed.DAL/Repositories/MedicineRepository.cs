@@ -24,6 +24,7 @@ namespace SmartMed.DAL.Repositories
         {
             const string sql = "SELECT Id, CategoryId, Name, Brand, DosageForm, Strength, Unit, " +
                                "StockQuantity, ReorderLevel, UnitPrice, ExpiryDate, Description, " +
+                               "DiscountPercent, PromotionLabel, RequiresPrescription, " +
                                "IsActive, CreatedDate, UpdatedDate " +
                                "FROM Medicines WHERE Id = @Id";
             try
@@ -50,6 +51,7 @@ namespace SmartMed.DAL.Repositories
         {
             const string sql = "SELECT Id, CategoryId, Name, Brand, DosageForm, Strength, Unit, " +
                                "StockQuantity, ReorderLevel, UnitPrice, ExpiryDate, Description, " +
+                               "DiscountPercent, PromotionLabel, RequiresPrescription, " +
                                "IsActive, CreatedDate, UpdatedDate " +
                                "FROM Medicines WHERE IsActive = 1";
             try
@@ -77,6 +79,7 @@ namespace SmartMed.DAL.Repositories
         {
             const string sql = "SELECT Id, CategoryId, Name, Brand, DosageForm, Strength, Unit, " +
                                "StockQuantity, ReorderLevel, UnitPrice, ExpiryDate, Description, " +
+                               "DiscountPercent, PromotionLabel, RequiresPrescription, " +
                                "IsActive, CreatedDate, UpdatedDate " +
                                "FROM Medicines WHERE CategoryId = @CategoryId AND IsActive = 1";
             try
@@ -106,6 +109,7 @@ namespace SmartMed.DAL.Repositories
             Guard.AgainstNullOrWhiteSpace(keyword, nameof(keyword));
             const string sql = "SELECT Id, CategoryId, Name, Brand, DosageForm, Strength, Unit, " +
                                "StockQuantity, ReorderLevel, UnitPrice, ExpiryDate, Description, " +
+                               "DiscountPercent, PromotionLabel, RequiresPrescription, " +
                                "IsActive, CreatedDate, UpdatedDate " +
                                "FROM Medicines WHERE IsActive = 1 AND " +
                                "(Name LIKE @Keyword OR Brand LIKE @Keyword)";
@@ -135,6 +139,7 @@ namespace SmartMed.DAL.Repositories
         {
             const string sql = "SELECT Id, CategoryId, Name, Brand, DosageForm, Strength, Unit, " +
                                "StockQuantity, ReorderLevel, UnitPrice, ExpiryDate, Description, " +
+                               "DiscountPercent, PromotionLabel, RequiresPrescription, " +
                                "IsActive, CreatedDate, UpdatedDate " +
                                "FROM Medicines WHERE IsActive = 1 AND StockQuantity <= ReorderLevel";
             try
@@ -163,6 +168,7 @@ namespace SmartMed.DAL.Repositories
             Guard.AgainstNegative(thresholdDays, nameof(thresholdDays));
             const string sql = "SELECT Id, CategoryId, Name, Brand, DosageForm, Strength, Unit, " +
                                "StockQuantity, ReorderLevel, UnitPrice, ExpiryDate, Description, " +
+                               "DiscountPercent, PromotionLabel, RequiresPrescription, " +
                                "IsActive, CreatedDate, UpdatedDate " +
                                "FROM Medicines WHERE IsActive = 1 AND ExpiryDate IS NOT NULL " +
                                "AND ExpiryDate <= DATEADD(DAY, @ThresholdDays, GETUTCDATE()) " +
@@ -194,6 +200,7 @@ namespace SmartMed.DAL.Repositories
             Guard.AgainstNullOrWhiteSpace(name, nameof(name));
             const string sql = "SELECT Id, CategoryId, Name, Brand, DosageForm, Strength, Unit, " +
                                "StockQuantity, ReorderLevel, UnitPrice, ExpiryDate, Description, " +
+                               "DiscountPercent, PromotionLabel, RequiresPrescription, " +
                                "IsActive, CreatedDate, UpdatedDate " +
                                "FROM Medicines WHERE Name = @Name AND " +
                                "((Brand = @Brand) OR (Brand IS NULL AND @Brand IS NULL))";
@@ -222,9 +229,11 @@ namespace SmartMed.DAL.Repositories
         {
             Guard.AgainstNull(medicine, nameof(medicine));
             const string sql = "INSERT INTO Medicines (CategoryId, Name, Brand, DosageForm, Strength, Unit, " +
-                               "StockQuantity, ReorderLevel, UnitPrice, ExpiryDate, Description) " +
+                               "StockQuantity, ReorderLevel, UnitPrice, ExpiryDate, Description, " +
+                               "DiscountPercent, PromotionLabel, RequiresPrescription) " +
                                "VALUES (@CategoryId, @Name, @Brand, @DosageForm, @Strength, @Unit, " +
-                               "@StockQuantity, @ReorderLevel, @UnitPrice, @ExpiryDate, @Description); " +
+                               "@StockQuantity, @ReorderLevel, @UnitPrice, @ExpiryDate, @Description, " +
+                               "@DiscountPercent, @PromotionLabel, @RequiresPrescription); " +
                                "SELECT CAST(SCOPE_IDENTITY() AS INT);";
             try
             {
@@ -242,6 +251,9 @@ namespace SmartMed.DAL.Repositories
                     command.Parameters.AddWithValue("@UnitPrice", medicine.UnitPrice);
                     command.Parameters.AddWithValue("@ExpiryDate", (object)medicine.ExpiryDate ?? DBNull.Value);
                     command.Parameters.AddWithValue("@Description", (object)medicine.Description ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@DiscountPercent", medicine.DiscountPercent);
+                    command.Parameters.AddWithValue("@PromotionLabel", (object)medicine.PromotionLabel ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@RequiresPrescription", medicine.RequiresPrescription);
                     connection.Open();
                     return (int)command.ExecuteScalar();
                 }
@@ -260,6 +272,8 @@ namespace SmartMed.DAL.Repositories
                                "Unit = @Unit, StockQuantity = @StockQuantity, " +
                                "ReorderLevel = @ReorderLevel, UnitPrice = @UnitPrice, " +
                                "ExpiryDate = @ExpiryDate, Description = @Description, " +
+                               "DiscountPercent = @DiscountPercent, PromotionLabel = @PromotionLabel, " +
+                               "RequiresPrescription = @RequiresPrescription, " +
                                "UpdatedDate = GETUTCDATE() WHERE Id = @Id";
             try
             {
@@ -278,6 +292,9 @@ namespace SmartMed.DAL.Repositories
                     command.Parameters.AddWithValue("@UnitPrice", medicine.UnitPrice);
                     command.Parameters.AddWithValue("@ExpiryDate", (object)medicine.ExpiryDate ?? DBNull.Value);
                     command.Parameters.AddWithValue("@Description", (object)medicine.Description ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@DiscountPercent", medicine.DiscountPercent);
+                    command.Parameters.AddWithValue("@PromotionLabel", (object)medicine.PromotionLabel ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@RequiresPrescription", medicine.RequiresPrescription);
                     connection.Open();
                     command.ExecuteNonQuery();
                 }
@@ -399,6 +416,9 @@ namespace SmartMed.DAL.Repositories
                 UnitPrice = (decimal)reader["UnitPrice"],
                 ExpiryDate = reader["ExpiryDate"] == DBNull.Value ? null : (DateTime?)reader["ExpiryDate"],
                 Description = reader["Description"] == DBNull.Value ? null : (string)reader["Description"],
+                DiscountPercent = (decimal)reader["DiscountPercent"],
+                PromotionLabel = reader["PromotionLabel"] == DBNull.Value ? null : (string)reader["PromotionLabel"],
+                RequiresPrescription = (bool)reader["RequiresPrescription"],
                 IsActive = (bool)reader["IsActive"],
                 CreatedDate = (DateTime)reader["CreatedDate"],
                 UpdatedDate = reader["UpdatedDate"] == DBNull.Value ? null : (DateTime?)reader["UpdatedDate"]

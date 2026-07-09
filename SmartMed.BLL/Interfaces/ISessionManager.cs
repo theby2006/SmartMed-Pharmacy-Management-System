@@ -8,6 +8,8 @@ namespace SmartMed.BLL.Interfaces
     {
         SessionContext StartSession(User user);
 
+        SessionContext StartCustomerSession(Customer customer);
+
         void EndSession();
 
         SessionContext CurrentSession { get; }

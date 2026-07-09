@@ -33,5 +33,6 @@ namespace SmartMed.BLL.Interfaces
         OperationResult<List<MonthlySalesSummary>> GetMonthlySalesTrend(int months = 12);
         OperationResult<byte[]> ExportToCsv<T>(List<T> data);
         OperationResult<byte[]> ExportToExcel<T>(List<T> data);
+        OperationResult<byte[]> ExportToPdf<T>(string title, List<T> data);
     }
 }

@@ -17,5 +17,8 @@ namespace SmartMed.Models.Entities
         public decimal UnitPrice { get; set; }
         public DateTime? ExpiryDate { get; set; }
         public string Description { get; set; }
+        public decimal DiscountPercent { get; set; }
+        public string PromotionLabel { get; set; }
+        public bool RequiresPrescription { get; set; }
     }
 }

@@ -11,8 +11,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SmartMed.DAL\SmartMed.DAL.csproj" />
     <ProjectReference Include="..\SmartMed.Models\SmartMed.Models.csproj" />
     <ProjectReference Include="..\SmartMed.Common\SmartMed.Common.csproj" />
+    <ProjectReference Include="..\SmartMed.Reports\SmartMed.Reports.csproj" />
   </ItemGroup>
 </Project>
+

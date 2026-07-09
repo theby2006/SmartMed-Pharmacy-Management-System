@@ -16,6 +16,7 @@ namespace SmartMed.Tests.BLL
     public class AuthenticationServiceTests
     {
         private MockUserRepository _userRepository;
+        private MockCustomerRepository _customerRepository;
         private MockPasswordHasher _passwordHasher;
         private MockSessionManager _sessionManager;
         private MockAuditLogRepository _auditLogRepository;
@@ -24,7 +25,7 @@ namespace SmartMed.Tests.BLL
         private User _activeAdminUser;
         private User _inactiveUser;
         private User _lockedUser;
-        private User _customerUser;
+        private Customer _testCustomer;
 
         [TestInitialize]
         public void TestInitialize()
@@ -68,26 +69,26 @@ namespace SmartMed.Tests.BLL
                 LockedUntil = DateTime.UtcNow.AddMinutes(15)
             };
 
-            _customerUser = new User
+            _testCustomer = new Customer
             {
-                Id = 4,
-                Username = "customer@test.com",
-                PasswordHash = Convert.ToBase64String(new byte[32]),
-                PasswordSalt = Convert.ToBase64String(new byte[16]),
-                DisplayName = "Test Customer",
-                Role = RoleType.Customer,
-                IsActive = true,
-                FailedLoginAttempts = 0,
-                LockedUntil = null
+                Id = 1,
+                FullName = "Test Customer",
+                PhoneNumber = "0771111111",
+                Email = "customer@test.com",
+                PinHash = Convert.ToBase64String(new byte[32]),
+                PinSalt = Convert.ToBase64String(new byte[16]),
+                IsActive = true
             };
 
-            _userRepository = new MockUserRepository(_activeAdminUser, _inactiveUser, _lockedUser, _customerUser);
+            _userRepository = new MockUserRepository(_activeAdminUser, _inactiveUser, _lockedUser, null);
+            _customerRepository = new MockCustomerRepository(_testCustomer);
             _passwordHasher = new MockPasswordHasher();
             _sessionManager = new MockSessionManager();
             _auditLogRepository = new MockAuditLogRepository();
 
             _authService = new AuthenticationService(
                 _userRepository,
+                _customerRepository,
                 _passwordHasher,
                 _sessionManager,
                 _auditLogRepository);
@@ -207,35 +208,40 @@ namespace SmartMed.Tests.BLL
         public void Constructor_ShouldThrow_WhenUserRepositoryIsNull()
         {
             Assert.ThrowsException<ValidationException>(() =>
-                new AuthenticationService(null, _passwordHasher, _sessionManager, _auditLogRepository));
+                new AuthenticationService(null, _customerRepository, _passwordHasher, _sessionManager, _auditLogRepository));
+        }
+
+        [TestMethod]
+        public void Constructor_ShouldThrow_WhenCustomerRepositoryIsNull()
+        {
+            Assert.ThrowsException<ValidationException>(() =>
+                new AuthenticationService(_userRepository, null, _passwordHasher, _sessionManager, _auditLogRepository));
         }
 
         [TestMethod]
         public void Constructor_ShouldThrow_WhenPasswordHasherIsNull()
         {
             Assert.ThrowsException<ValidationException>(() =>
-                new AuthenticationService(_userRepository, null, _sessionManager, _auditLogRepository));
+                new AuthenticationService(_userRepository, _customerRepository, null, _sessionManager, _auditLogRepository));
         }
 
         [TestMethod]
         public void Constructor_ShouldThrow_WhenSessionManagerIsNull()
         {
             Assert.ThrowsException<ValidationException>(() =>
-                new AuthenticationService(_userRepository, _passwordHasher, null, _auditLogRepository));
+                new AuthenticationService(_userRepository, _customerRepository, _passwordHasher, null, _auditLogRepository));
         }
 
         [TestMethod]
         public void Constructor_ShouldThrow_WhenAuditLogRepositoryIsNull()
         {
             Assert.ThrowsException<ValidationException>(() =>
-                new AuthenticationService(_userRepository, _passwordHasher, _sessionManager, null));
+                new AuthenticationService(_userRepository, _customerRepository, _passwordHasher, _sessionManager, null));
         }
 
         [TestMethod]
         public void LoginCustomer_ShouldReturnSuccess_WithValidIdentifier()
         {
-            _customerUser.Role = RoleType.Customer;
-
             OperationResult<SessionContext> result = _authService.LoginCustomer("customer@test.com");
 
             Assert.IsTrue(result.IsSuccess);
@@ -275,7 +281,7 @@ namespace SmartMed.Tests.BLL
             if (userId == _activeAdmin.Id) return _activeAdmin;
             if (userId == _inactive.Id) return _inactive;
             if (userId == _locked.Id) return _locked;
-            if (userId == _customer.Id) return _customer;
+            if (_customer != null && userId == _customer.Id) return _customer;
             return null;
         }
 
@@ -284,7 +290,7 @@ namespace SmartMed.Tests.BLL
             if (username == _activeAdmin.Username) return _activeAdmin;
             if (username == _inactive.Username) return _inactive;
             if (username == _locked.Username) return _locked;
-            if (username == _customer.Username) return _customer;
+            if (_customer != null && username == _customer.Username) return _customer;
             return null;
         }
 

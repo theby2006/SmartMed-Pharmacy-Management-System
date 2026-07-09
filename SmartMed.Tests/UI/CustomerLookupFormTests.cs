@@ -11,7 +11,7 @@ namespace SmartMed.Tests.UI
         public void CustomerLookupForm_ShouldInitializeComponents()
         {
             IAuthenticationService authService = CreateTestAuthService();
-            using (CustomerLookupForm form = new CustomerLookupForm(authService))
+            using (CustomerLookupForm form = new CustomerLookupForm(authService, new StubCustomerService()))
             {
                 Assert.IsNotNull(form);
                 Assert.IsFalse(string.IsNullOrWhiteSpace(form.Text));
@@ -22,6 +22,7 @@ namespace SmartMed.Tests.UI
         {
             return new SmartMed.BLL.Services.AuthenticationService(
                 new StubUserRepository(),
+                new StubCustomerRepository(),
                 new StubPasswordHasher(),
                 new StubSessionManager(),
                 new StubAuditLogRepository());

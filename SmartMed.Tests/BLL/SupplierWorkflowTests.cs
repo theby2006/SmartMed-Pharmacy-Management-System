@@ -167,6 +167,7 @@ namespace SmartMed.Tests.BLL
         public bool HasRole(RoleType role) => role == RoleType.Administrator;
 
         public SessionContext StartSession(User user) => CurrentSession;
+        public SessionContext StartCustomerSession(Customer customer) => CurrentSession;
         public void EndSession() { }
     }
 }

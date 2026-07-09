@@ -5,6 +5,8 @@ using System.Windows.Forms;
 using SmartMed.BLL.Interfaces;
 using SmartMed.Models.Entities;
 using SmartMed.Models.Results;
+using SmartMed.UI.Theme;
+using SmartMed.UI.Theme.Controls;
 
 namespace SmartMed.UI.Forms
 {
@@ -12,30 +14,30 @@ namespace SmartMed.UI.Forms
     {
         private readonly ISupplierService _supplierService;
 
-        private TextBox txtSearch;
-        private Button btnSearch;
-        private Button btnClearSearch;
+        private ModernTextBox txtSearch;
+        private RoundedButton btnSearch;
+        private RoundedButton btnAddNew;
         private ComboBox cboStatusFilter;
-        private TextBox txtSupplierCode;
-        private TextBox txtSupplierName;
-        private TextBox txtCompanyName;
-        private TextBox txtContactPerson;
-        private TextBox txtPhoneNumber;
-        private TextBox txtEmail;
-        private TextBox txtAddress;
-        private TextBox txtCity;
-        private TextBox txtCountry;
-        private TextBox txtPostalCode;
-        private TextBox txtTaxNumber;
-        private TextBox txtNotes;
-        private Button btnAdd;
-        private Button btnUpdate;
-        private Button btnDelete;
-        private Button btnRefresh;
+        private ModernTextBox txtSupplierCode;
+        private ModernTextBox txtSupplierName;
+        private ModernTextBox txtCompanyName;
+        private ModernTextBox txtContactPerson;
+        private ModernTextBox txtPhoneNumber;
+        private ModernTextBox txtEmail;
+        private ModernTextBox txtAddress;
+        private ModernTextBox txtCity;
+        private ModernTextBox txtCountry;
+        private ModernTextBox txtPostalCode;
+        private ModernTextBox txtTaxNumber;
+        private ModernTextBox txtNotes;
+        private RoundedButton btnAdd;
+        private RoundedButton btnUpdate;
+        private RoundedButton btnDelete;
+        private RoundedButton btnClearForm;
         private DataGridView dgvSuppliers;
-        private Label lblStatus;
 
         private List<Supplier> _currentSuppliers;
+        private List<Supplier> _displayedSuppliers = new List<Supplier>();
         private int _selectedSupplierId;
 
         public SupplierForm(ISupplierService supplierService)
@@ -47,446 +49,130 @@ namespace SmartMed.UI.Forms
 
         private void InitializeComponents()
         {
-            Text = "SmartMed - Suppliers";
-            StartPosition = FormStartPosition.CenterParent;
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
-            MinimizeBox = false;
-            ClientSize = new Size(860, 680);
-            ShowIcon = false;
+            Text = "Suppliers";
+            BackColor = AppTheme.Background;
+            AutoScroll = true;
 
-            int labelX = 16;
-            int fieldX = 110;
-            int fieldWidth = 160;
-            int rowH = 30;
-            int colGap = 220;
+            Label title = new Label { AutoSize = true, Font = AppTheme.PageTitle, ForeColor = AppTheme.TextPrimary, Location = new Point(0, 0), Text = "Suppliers" };
+            Controls.Add(title);
 
-            Label lblSearch = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, 16),
-                Text = "Search:"
-            };
+            txtSearch = new ModernTextBox { Location = new Point(0, 48), Width = 260, PlaceholderText = "Search suppliers", LeadingIcon = IconFactory.Search };
+            Controls.Add(txtSearch);
 
-            txtSearch = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, 13),
-                Width = 200
-            };
-
-            btnSearch = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(320, 12),
-                Width = 70,
-                Height = 26,
-                Text = "Search"
-            };
+            btnSearch = new RoundedButton { Variant = ButtonVariant.Outline, Text = "Search", Location = new Point(272, 48), Width = 100 };
             btnSearch.Click += BtnSearch_Click;
+            Controls.Add(btnSearch);
 
-            btnClearSearch = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(396, 12),
-                Width = 70,
-                Height = 26,
-                Text = "Clear"
-            };
-            btnClearSearch.Click += (s, e) => { txtSearch.Text = ""; LoadSuppliers(); };
-
-            int row1 = 56;
-            Label lblSupplierCode = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row1),
-                Text = "Supplier Code:"
-            };
-
-            txtSupplierCode = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row1 - 3),
-                Width = fieldWidth
-            };
-
-            Label lblSupplierName = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX + colGap, row1),
-                Text = "Supplier Name:"
-            };
-
-            txtSupplierName = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX + colGap, row1 - 3),
-                Width = fieldWidth
-            };
-
-            int row2 = row1 + rowH;
-            Label lblCompanyName = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row2),
-                Text = "Company Name:"
-            };
-
-            txtCompanyName = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row2 - 3),
-                Width = fieldWidth
-            };
-
-            Label lblContactPerson = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX + colGap, row2),
-                Text = "Contact Person:"
-            };
-
-            txtContactPerson = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX + colGap, row2 - 3),
-                Width = fieldWidth
-            };
-
-            int row3 = row2 + rowH;
-            Label lblPhoneNumber = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row3),
-                Text = "Phone Number:"
-            };
-
-            txtPhoneNumber = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row3 - 3),
-                Width = fieldWidth
-            };
-
-            Label lblEmail = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX + colGap, row3),
-                Text = "Email:"
-            };
-
-            txtEmail = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX + colGap, row3 - 3),
-                Width = fieldWidth
-            };
-
-            int row4 = row3 + rowH;
-            Label lblAddress = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row4),
-                Text = "Address:"
-            };
-
-            txtAddress = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row4 - 3),
-                Width = fieldWidth
-            };
-
-            Label lblCity = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX + colGap, row4),
-                Text = "City:"
-            };
-
-            txtCity = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX + colGap, row4 - 3),
-                Width = fieldWidth
-            };
-
-            int row5 = row4 + rowH;
-            Label lblCountry = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row5),
-                Text = "Country:"
-            };
-
-            txtCountry = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row5 - 3),
-                Width = fieldWidth
-            };
-
-            Label lblPostalCode = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX + colGap, row5),
-                Text = "Postal Code:"
-            };
-
-            txtPostalCode = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX + colGap, row5 - 3),
-                Width = fieldWidth
-            };
-
-            int row6 = row5 + rowH;
-            Label lblTaxNumber = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row6),
-                Text = "Tax Number:"
-            };
-
-            txtTaxNumber = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row6 - 3),
-                Width = fieldWidth
-            };
-
-            Label lblNotes = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX + colGap, row6),
-                Text = "Notes:"
-            };
-
-            txtNotes = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX + colGap, row6 - 3),
-                Width = fieldWidth,
-                Height = 50,
-                Multiline = true
-            };
-
-            int buttonsY = row6 + 70;
-            btnAdd = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, buttonsY),
-                Width = 80,
-                Height = 28,
-                Text = "Add"
-            };
-            btnAdd.Click += BtnAdd_Click;
-
-            btnUpdate = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(104, buttonsY),
-                Width = 80,
-                Height = 28,
-                Text = "Update"
-            };
-            btnUpdate.Click += BtnUpdate_Click;
-
-            btnDelete = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(192, buttonsY),
-                Width = 80,
-                Height = 28,
-                Text = "Delete"
-            };
-            btnDelete.Click += BtnDelete_Click;
-
-            btnRefresh = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(280, buttonsY),
-                Width = 80,
-                Height = 28,
-                Text = "Refresh"
-            };
-            btnRefresh.Click += (s, e) => { txtSearch.Text = ""; LoadSuppliers(); };
-
-            int filterY = buttonsY + 40;
-            Label lblFilter = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, filterY),
-                Text = "Status:"
-            };
-
-            cboStatusFilter = new ComboBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, filterY - 3),
-                Width = 120,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
+            cboStatusFilter = new ComboBox { Font = AppTheme.Body, Location = new Point(384, 58), Width = 140, DropDownStyle = ComboBoxStyle.DropDownList };
             cboStatusFilter.Items.AddRange(new object[] { "All Suppliers", "Active Only", "Inactive Only" });
             cboStatusFilter.SelectedIndex = 1;
             cboStatusFilter.SelectedIndexChanged += CboStatusFilter_SelectedIndexChanged;
-
-            int gridY = filterY + 30;
-            dgvSuppliers = new DataGridView
-            {
-                Location = new Point(labelX, gridY),
-                Width = 820,
-                Height = 260,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor = Color.White
-            };
-            dgvSuppliers.SelectionChanged += DgvSuppliers_SelectionChanged;
-
-            lblStatus = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.Green,
-                Location = new Point(labelX, gridY + 270),
-                Width = 800,
-                Text = "Ready"
-            };
-
-            Controls.Add(lblSearch);
-            Controls.Add(txtSearch);
-            Controls.Add(btnSearch);
-            Controls.Add(btnClearSearch);
-            Controls.Add(lblSupplierCode);
-            Controls.Add(txtSupplierCode);
-            Controls.Add(lblSupplierName);
-            Controls.Add(txtSupplierName);
-            Controls.Add(lblCompanyName);
-            Controls.Add(txtCompanyName);
-            Controls.Add(lblContactPerson);
-            Controls.Add(txtContactPerson);
-            Controls.Add(lblPhoneNumber);
-            Controls.Add(txtPhoneNumber);
-            Controls.Add(lblEmail);
-            Controls.Add(txtEmail);
-            Controls.Add(lblAddress);
-            Controls.Add(txtAddress);
-            Controls.Add(lblCity);
-            Controls.Add(txtCity);
-            Controls.Add(lblCountry);
-            Controls.Add(txtCountry);
-            Controls.Add(lblPostalCode);
-            Controls.Add(txtPostalCode);
-            Controls.Add(lblTaxNumber);
-            Controls.Add(txtTaxNumber);
-            Controls.Add(lblNotes);
-            Controls.Add(txtNotes);
-            Controls.Add(btnAdd);
-            Controls.Add(btnUpdate);
-            Controls.Add(btnDelete);
-            Controls.Add(btnRefresh);
-            Controls.Add(lblFilter);
             Controls.Add(cboStatusFilter);
+
+            btnAddNew = new RoundedButton { Variant = ButtonVariant.Primary, IconGlyph = IconFactory.Add, Text = "New Supplier", Location = new Point(700, 48), Width = 160 };
+            btnAddNew.Click += (s, e) => ClearFields();
+            Controls.Add(btnAddNew);
+
+            dgvSuppliers = new DataGridView { Location = new Point(0, 100), Size = new Size(900, 260), Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
+            DataGridViewStyler.Apply(dgvSuppliers);
+            dgvSuppliers.SelectionChanged += DgvSuppliers_SelectionChanged;
             Controls.Add(dgvSuppliers);
-            Controls.Add(lblStatus);
+
+            CardPanel formCard = new CardPanel { Location = new Point(0, 372), Size = new Size(900, 300) };
+            Controls.Add(formCard);
+
+            int labelX = 20;
+            int fieldX = 140;
+            int fieldWidth = 180;
+            int rowH = 36;
+            int colGap = 260;
+
+            txtSupplierCode = AddFormField(formCard, "Code:", labelX, fieldX, 20, fieldWidth);
+            txtSupplierName = AddFormField(formCard, "Name:", labelX + colGap, fieldX + colGap, 20, fieldWidth);
+
+            int row2 = 20 + rowH;
+            txtCompanyName = AddFormField(formCard, "Company:", labelX, fieldX, row2, fieldWidth);
+            txtContactPerson = AddFormField(formCard, "Contact:", labelX + colGap, fieldX + colGap, row2, fieldWidth);
+
+            int row3 = row2 + rowH;
+            txtPhoneNumber = AddFormField(formCard, "Phone:", labelX, fieldX, row3, fieldWidth);
+            txtEmail = AddFormField(formCard, "Email:", labelX + colGap, fieldX + colGap, row3, fieldWidth);
+
+            int row4 = row3 + rowH;
+            txtAddress = AddFormField(formCard, "Address:", labelX, fieldX, row4, fieldWidth);
+            txtCity = AddFormField(formCard, "City:", labelX + colGap, fieldX + colGap, row4, fieldWidth);
+
+            int row5 = row4 + rowH;
+            txtCountry = AddFormField(formCard, "Country:", labelX, fieldX, row5, fieldWidth);
+            txtPostalCode = AddFormField(formCard, "Postal Code:", labelX + colGap, fieldX + colGap, row5, fieldWidth);
+
+            int row6 = row5 + rowH;
+            txtTaxNumber = AddFormField(formCard, "Tax Number:", labelX, fieldX, row6, fieldWidth);
+            txtNotes = AddFormField(formCard, "Notes:", labelX + colGap, fieldX + colGap, row6, fieldWidth);
+
+            int buttonsY = row6 + 46;
+            btnAdd = new RoundedButton { Variant = ButtonVariant.Primary, Text = "Add", Location = new Point(labelX, buttonsY), Width = 100 };
+            btnAdd.Click += BtnAdd_Click;
+            formCard.Controls.Add(btnAdd);
+
+            btnUpdate = new RoundedButton { Variant = ButtonVariant.Secondary, Text = "Update", Location = new Point(labelX + 108, buttonsY), Width = 100 };
+            btnUpdate.Click += BtnUpdate_Click;
+            formCard.Controls.Add(btnUpdate);
+
+            btnDelete = new RoundedButton { Variant = ButtonVariant.Danger, Text = "Delete", Location = new Point(labelX + 216, buttonsY), Width = 100 };
+            btnDelete.Click += BtnDelete_Click;
+            formCard.Controls.Add(btnDelete);
+
+            btnClearForm = new RoundedButton { Variant = ButtonVariant.Ghost, Text = "Clear", Location = new Point(labelX + 324, buttonsY), Width = 100 };
+            btnClearForm.Click += (s, e) => ClearFields();
+            formCard.Controls.Add(btnClearForm);
+        }
+
+        private ModernTextBox AddFormField(Control parent, string labelText, int labelX, int fieldX, int y, int width)
+        {
+            Label label = new Label { AutoSize = true, Font = AppTheme.Body, Location = new Point(labelX, y + 10), Text = labelText };
+            parent.Controls.Add(label);
+            ModernTextBox field = new ModernTextBox { Location = new Point(fieldX, y), Width = width };
+            parent.Controls.Add(field);
+            return field;
         }
 
         private void LoadSuppliers()
         {
-            try
-            {
-                OperationResult<List<Supplier>> result = _supplierService.GetAllSuppliers();
-                if (result.IsSuccess)
-                {
-                    _currentSuppliers = result.Data;
-                    BindSuppliers(_currentSuppliers);
-                    SetStatus($"Loaded {_currentSuppliers.Count} supplier(s).", Color.Green);
-                }
-                else
-                {
-                    SetStatus(result.Message, Color.Red);
-                }
-            }
-            catch (Exception ex)
-            {
-                SetStatus($"Error loading suppliers: {ex.Message}", Color.Red);
-            }
-
+            OperationResult<List<Supplier>> result = _supplierService.GetAllSuppliers();
+            _currentSuppliers = result.IsSuccess ? result.Data : new List<Supplier>();
+            ApplyStatusFilter();
             _selectedSupplierId = 0;
         }
 
         private void BindSuppliers(List<Supplier> suppliers)
         {
-            dgvSuppliers.DataSource = null;
-            dgvSuppliers.DataSource = suppliers;
+            _displayedSuppliers = suppliers;
 
-            if (dgvSuppliers.Columns.Contains("Id"))
-                dgvSuppliers.Columns["Id"].Width = 35;
-            if (dgvSuppliers.Columns.Contains("SupplierCode"))
-                dgvSuppliers.Columns["SupplierCode"].Width = 90;
-            if (dgvSuppliers.Columns.Contains("SupplierName"))
-                dgvSuppliers.Columns["SupplierName"].Width = 140;
-            if (dgvSuppliers.Columns.Contains("CompanyName"))
-                dgvSuppliers.Columns["CompanyName"].Width = 120;
-            if (dgvSuppliers.Columns.Contains("ContactPerson"))
-                dgvSuppliers.Columns["ContactPerson"].Width = 100;
-            if (dgvSuppliers.Columns.Contains("PhoneNumber"))
-                dgvSuppliers.Columns["PhoneNumber"].Width = 90;
-            if (dgvSuppliers.Columns.Contains("Email"))
-                dgvSuppliers.Columns["Email"].Visible = false;
-            if (dgvSuppliers.Columns.Contains("Address"))
-                dgvSuppliers.Columns["Address"].Visible = false;
-            if (dgvSuppliers.Columns.Contains("City"))
-                dgvSuppliers.Columns["City"].Width = 80;
-            if (dgvSuppliers.Columns.Contains("Country"))
-                dgvSuppliers.Columns["Country"].Visible = false;
-            if (dgvSuppliers.Columns.Contains("PostalCode"))
-                dgvSuppliers.Columns["PostalCode"].Visible = false;
-            if (dgvSuppliers.Columns.Contains("TaxNumber"))
-                dgvSuppliers.Columns["TaxNumber"].Visible = false;
-            if (dgvSuppliers.Columns.Contains("Notes"))
-                dgvSuppliers.Columns["Notes"].Visible = false;
-            if (dgvSuppliers.Columns.Contains("IsActive"))
-                dgvSuppliers.Columns["IsActive"].Visible = false;
-            if (dgvSuppliers.Columns.Contains("CreatedDate"))
-                dgvSuppliers.Columns["CreatedDate"].Visible = false;
-            if (dgvSuppliers.Columns.Contains("UpdatedDate"))
-                dgvSuppliers.Columns["UpdatedDate"].Visible = false;
+            var displayData = suppliers.ConvertAll(s => new
+            {
+                s.SupplierCode,
+                s.SupplierName,
+                s.CompanyName,
+                s.ContactPerson,
+                s.PhoneNumber,
+                s.City,
+                Status = s.IsActive ? "Active" : "Inactive"
+            });
+
+            dgvSuppliers.DataSource = null;
+            dgvSuppliers.DataSource = displayData;
         }
 
         private void ApplyStatusFilter()
         {
             string filter = cboStatusFilter.SelectedItem?.ToString();
             if (string.IsNullOrEmpty(filter) || filter == "All Suppliers")
-            {
                 BindSuppliers(_currentSuppliers);
-            }
             else if (filter == "Active Only")
-            {
                 BindSuppliers(_currentSuppliers.FindAll(s => s.IsActive));
-            }
             else if (filter == "Inactive Only")
-            {
                 BindSuppliers(_currentSuppliers.FindAll(s => !s.IsActive));
-            }
         }
 
         private void CboStatusFilter_SelectedIndexChanged(object sender, EventArgs e)
@@ -496,15 +182,13 @@ namespace SmartMed.UI.Forms
 
         private void DgvSuppliers_SelectionChanged(object sender, EventArgs e)
         {
-            if (dgvSuppliers.SelectedRows.Count > 0)
-            {
-                Supplier supplier = dgvSuppliers.SelectedRows[0].DataBoundItem as Supplier;
-                if (supplier != null)
-                {
-                    _selectedSupplierId = supplier.Id;
-                    PopulateFields(supplier);
-                }
-            }
+            if (dgvSuppliers.SelectedRows.Count == 0) return;
+            int rowIndex = dgvSuppliers.SelectedRows[0].Index;
+            if (rowIndex < 0 || rowIndex >= _displayedSuppliers.Count) return;
+
+            Supplier supplier = _displayedSuppliers[rowIndex];
+            _selectedSupplierId = supplier.Id;
+            PopulateFields(supplier);
         }
 
         private void PopulateFields(Supplier supplier)
@@ -525,6 +209,7 @@ namespace SmartMed.UI.Forms
 
         private void ClearFields()
         {
+            _selectedSupplierId = 0;
             txtSupplierCode.Text = "";
             txtSupplierName.Text = "";
             txtCompanyName.Text = "";
@@ -537,6 +222,7 @@ namespace SmartMed.UI.Forms
             txtPostalCode.Text = "";
             txtTaxNumber.Text = "";
             txtNotes.Text = "";
+            dgvSuppliers.ClearSelection();
         }
 
         private Supplier ReadSupplierFromFields()
@@ -567,11 +253,11 @@ namespace SmartMed.UI.Forms
             {
                 ClearFields();
                 LoadSuppliers();
-                SetStatus("Supplier added successfully.", Color.Green);
+                ToastNotifier.Show(FindForm(), "Supplier added successfully.");
             }
             else
             {
-                SetStatus(result.Message, Color.Red);
+                ToastNotifier.Show(FindForm(), result.Message, ToastKind.Error);
             }
         }
 
@@ -579,7 +265,7 @@ namespace SmartMed.UI.Forms
         {
             if (_selectedSupplierId <= 0)
             {
-                SetStatus("Please select a supplier to update.", Color.Red);
+                ToastNotifier.Show(FindForm(), "Select a supplier to update.", ToastKind.Warning);
                 return;
             }
 
@@ -591,11 +277,11 @@ namespace SmartMed.UI.Forms
             if (result.IsSuccess)
             {
                 LoadSuppliers();
-                SetStatus("Supplier updated successfully.", Color.Green);
+                ToastNotifier.Show(FindForm(), "Supplier updated successfully.");
             }
             else
             {
-                SetStatus(result.Message, Color.Red);
+                ToastNotifier.Show(FindForm(), result.Message, ToastKind.Error);
             }
         }
 
@@ -603,7 +289,7 @@ namespace SmartMed.UI.Forms
         {
             if (_selectedSupplierId <= 0)
             {
-                SetStatus("Please select a supplier to delete.", Color.Red);
+                ToastNotifier.Show(FindForm(), "Select a supplier to delete.", ToastKind.Warning);
                 return;
             }
 
@@ -625,11 +311,11 @@ namespace SmartMed.UI.Forms
             {
                 ClearFields();
                 LoadSuppliers();
-                SetStatus("Supplier deleted successfully.", Color.Green);
+                ToastNotifier.Show(FindForm(), "Supplier deleted successfully.");
             }
             else
             {
-                SetStatus(result.Message, Color.Red);
+                ToastNotifier.Show(FindForm(), result.Message, ToastKind.Error);
             }
         }
 
@@ -642,30 +328,12 @@ namespace SmartMed.UI.Forms
                 return;
             }
 
-            try
+            OperationResult<List<Supplier>> result = _supplierService.SearchSuppliers(keyword);
+            if (result.IsSuccess)
             {
-                OperationResult<List<Supplier>> result = _supplierService.SearchSuppliers(keyword);
-                if (result.IsSuccess)
-                {
-                    _currentSuppliers = result.Data;
-                    BindSuppliers(_currentSuppliers);
-                    SetStatus($"Found {_currentSuppliers.Count} supplier(s).", Color.Green);
-                }
-                else
-                {
-                    SetStatus(result.Message, Color.Red);
-                }
+                _currentSuppliers = result.Data;
+                BindSuppliers(_currentSuppliers);
             }
-            catch (Exception ex)
-            {
-                SetStatus($"Search error: {ex.Message}", Color.Red);
-            }
-        }
-
-        private void SetStatus(string message, Color color)
-        {
-            lblStatus.Text = message;
-            lblStatus.ForeColor = color;
         }
     }
 }

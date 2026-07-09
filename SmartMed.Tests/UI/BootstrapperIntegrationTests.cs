@@ -84,6 +84,11 @@ namespace SmartMed.Tests.UI
         public void LogLogout(int? userId, string username, string machineName) { }
         public void LogFailedAttempt(string username, string machineName, string details) { }
         public void Log(int? userId, string username, AuditAction action, string machineName, string details) { }
+        public List<AuditLogEntry> GetAll(int limit = 100) => new List<AuditLogEntry>();
+        public List<AuditLogEntry> GetByDateRange(System.DateTime from, System.DateTime to) => new List<AuditLogEntry>();
+        public List<AuditLogEntry> GetByAction(AuditAction action) => new List<AuditLogEntry>();
+        public List<AuditLogEntry> GetByUser(int? userId) => new List<AuditLogEntry>();
+        public List<AuditLogEntry> Search(string keyword, int limit = 50) => new List<AuditLogEntry>();
     }
 
     internal class SupplierTestSessionManager : ISessionManager
@@ -92,6 +97,7 @@ namespace SmartMed.Tests.UI
         public bool IsActive => false;
         public bool HasRole(RoleType role) => false;
         public SessionContext StartSession(User user) => null;
+        public SessionContext StartCustomerSession(Customer customer) => null;
         public void EndSession() { }
     }
 }

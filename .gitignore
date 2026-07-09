@@ -1,0 +1,35 @@
+# Build outputs
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Rider / VS Code
+.idea/
+.vscode/
+
+# NuGet
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Runtime application data (uploaded prescriptions, generated report exports)
+SmartMed.UI/App_Data/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local tooling sentinels
+tmp/

@@ -13,6 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SmartMed.BLL\SmartMed.BLL.csproj" />
     <ProjectReference Include="..\SmartMed.Models\SmartMed.Models.csproj" />
     <ProjectReference Include="..\SmartMed.Common\SmartMed.Common.csproj" />

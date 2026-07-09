@@ -55,6 +55,7 @@ namespace SmartMed.UI.Forms
         private Button btnGenerate;
         private Button btnExportCsv;
         private Button btnExportExcel;
+        private Button btnExportPdf;
         private Button btnPrint;
         private DataGridView dgvReport;
         private Label lblStatus;
@@ -214,10 +215,20 @@ namespace SmartMed.UI.Forms
             btnExportExcel.Click += ExportExcel;
             Controls.Add(btnExportExcel);
 
+            btnExportPdf = new Button
+            {
+                Text = "Export PDF",
+                Location = new Point(labelX + 342, y),
+                Size = new Size(96, 28),
+                Enabled = false
+            };
+            btnExportPdf.Click += ExportPdf;
+            Controls.Add(btnExportPdf);
+
             btnPrint = new Button
             {
                 Text = "Print",
-                Location = new Point(labelX + 342, y),
+                Location = new Point(labelX + 448, y),
                 Size = new Size(80, 28),
                 Enabled = false
             };
@@ -411,6 +422,7 @@ namespace SmartMed.UI.Forms
                 lblStatus.ForeColor = Color.Gray;
                 btnExportCsv.Enabled = result.Data.Count > 0;
                 btnExportExcel.Enabled = result.Data.Count > 0;
+                btnExportPdf.Enabled = result.Data.Count > 0;
                 btnPrint.Enabled = result.Data.Count > 0;
             }
             else
@@ -419,6 +431,7 @@ namespace SmartMed.UI.Forms
                 lblStatus.ForeColor = Color.Red;
                 btnExportCsv.Enabled = false;
                 btnExportExcel.Enabled = false;
+                btnExportPdf.Enabled = false;
                 btnPrint.Enabled = false;
             }
         }
@@ -476,8 +489,8 @@ namespace SmartMed.UI.Forms
 
             SaveFileDialog dialog = new SaveFileDialog
             {
-                Filter = "Excel Files (*.xls)|*.xls",
-                FileName = $"{cboReportType.SelectedItem}_{DateTime.Now:yyyyMMdd}.xls"
+                Filter = "Excel Files (*.xlsx)|*.xlsx",
+                FileName = $"{cboReportType.SelectedItem}_{DateTime.Now:yyyyMMdd}.xlsx"
             };
 
             if (dialog.ShowDialog() == DialogResult.OK)
@@ -493,6 +506,55 @@ namespace SmartMed.UI.Forms
                     MessageBox.Show(result.Message, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        private void ExportPdf(object sender, EventArgs e)
+        {
+            if (_currentData == null) return;
+
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                Filter = "PDF Files (*.pdf)|*.pdf",
+                FileName = $"{cboReportType.SelectedItem}_{DateTime.Now:yyyyMMdd}.pdf"
+            };
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                OperationResult<byte[]> result = CallExportPdf();
+                if (result.IsSuccess)
+                {
+                    System.IO.File.WriteAllBytes(dialog.FileName, result.Data);
+                    lblStatus.Text = "Exported to PDF successfully";
+                }
+                else
+                {
+                    MessageBox.Show(result.Message, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private OperationResult<byte[]> CallExportPdf()
+        {
+            string title = cboReportType.SelectedItem?.ToString() ?? "Report";
+
+            return _currentData switch
+            {
+                List<DailySalesSummary> d => _reportService.ExportToPdf(title, d),
+                List<MonthlySalesSummary> m => _reportService.ExportToPdf(title, m),
+                List<SalesReportRow> s => _reportService.ExportToPdf(title, s),
+                List<PaymentSummaryRow> p => _reportService.ExportToPdf(title, p),
+                List<PurchaseReportRow> p => _reportService.ExportToPdf(title, p),
+                List<InventoryReportRow> i => _reportService.ExportToPdf(title, i),
+                List<StockMovementReportRow> s => _reportService.ExportToPdf(title, s),
+                List<BatchReportRow> b => _reportService.ExportToPdf(title, b),
+                List<MedicineReportRow> m => _reportService.ExportToPdf(title, m),
+                List<CategorySummaryRow> c => _reportService.ExportToPdf(title, c),
+                List<TopSellingMedicineRow> t => _reportService.ExportToPdf(title, t),
+                List<SlowMovingMedicineRow> s => _reportService.ExportToPdf(title, s),
+                List<SupplierReportRow> s => _reportService.ExportToPdf(title, s),
+                List<ProfitReportRow> p => _reportService.ExportToPdf(title, p),
+                _ => OperationResult<byte[]>.Failure("Unsupported data type for export")
+            };
         }
 
         private OperationResult<byte[]> CallExportExcel()

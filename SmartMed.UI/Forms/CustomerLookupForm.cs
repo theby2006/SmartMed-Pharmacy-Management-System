@@ -12,16 +12,19 @@ namespace SmartMed.UI.Forms
     public class CustomerLookupForm : Form
     {
         private readonly IAuthenticationService _authService;
+        private readonly ICustomerService _customerService;
 
         private TextBox txtPhoneOrEmail;
         private TextBox txtPin;
         private Button btnLookup;
         private Button btnCancel;
         private Label lblStatus;
+        private LinkLabel linkRegister;
 
-        public CustomerLookupForm(IAuthenticationService authService)
+        public CustomerLookupForm(IAuthenticationService authService, ICustomerService customerService)
         {
             _authService = authService;
+            _customerService = customerService;
             InitializeComponents();
         }
 
@@ -32,7 +35,7 @@ namespace SmartMed.UI.Forms
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            ClientSize = new Size(380, 220);
+            ClientSize = new Size(380, 260);
             ShowIcon = false;
 
             Label lblPhoneOrEmail = new Label
@@ -114,6 +117,15 @@ namespace SmartMed.UI.Forms
             };
             btnCancel.Click += (s, e) => DialogResult = DialogResult.Cancel;
 
+            linkRegister = new LinkLabel
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F),
+                Location = new Point(150, buttonY + 40),
+                Text = "New here? Create an account"
+            };
+            linkRegister.LinkClicked += LinkRegister_LinkClicked;
+
             Controls.Add(lblPhoneOrEmail);
             Controls.Add(txtPhoneOrEmail);
 
@@ -130,6 +142,7 @@ namespace SmartMed.UI.Forms
             Controls.Add(lblStatus);
             Controls.Add(btnLookup);
             Controls.Add(btnCancel);
+            Controls.Add(linkRegister);
 
             txtPhoneOrEmail.TextChanged += (s, e) => UpdateLookupButtonState();
             if (txtPin != null)
@@ -183,6 +196,18 @@ namespace SmartMed.UI.Forms
             {
                 lblStatus.Text = result.Message;
                 btnLookup.Enabled = true;
+            }
+        }
+
+        private void LinkRegister_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            using (CustomerRegistrationForm registrationForm = new CustomerRegistrationForm(_customerService, _authService))
+            {
+                if (registrationForm.ShowDialog(this) == DialogResult.OK)
+                {
+                    DialogResult = DialogResult.OK;
+                    Close();
+                }
             }
         }
     }

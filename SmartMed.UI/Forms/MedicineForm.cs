@@ -6,6 +6,8 @@ using SmartMed.BLL.Interfaces;
 using SmartMed.Models.Entities;
 using SmartMed.Models.Enums;
 using SmartMed.Models.Results;
+using SmartMed.UI.Theme;
+using SmartMed.UI.Theme.Controls;
 
 namespace SmartMed.UI.Forms
 {
@@ -14,32 +16,34 @@ namespace SmartMed.UI.Forms
         private readonly IMedicineService _medicineService;
         private readonly IMedicineCategoryService _categoryService;
 
-        private TextBox txtSearch;
-        private Button btnSearch;
-        private Button btnClearSearch;
+        private ModernTextBox txtSearch;
+        private RoundedButton btnSearch;
+        private RoundedButton btnAddNew;
         private ComboBox cboCategory;
-        private TextBox txtName;
-        private TextBox txtBrand;
+        private ModernTextBox txtName;
+        private ModernTextBox txtBrand;
         private ComboBox cboDosageForm;
-        private TextBox txtStrength;
-        private TextBox txtUnit;
-        private TextBox txtStockQuantity;
-        private TextBox txtReorderLevel;
-        private TextBox txtUnitPrice;
+        private ModernTextBox txtStrength;
+        private ModernTextBox txtUnit;
+        private ModernTextBox txtStockQuantity;
+        private ModernTextBox txtReorderLevel;
+        private ModernTextBox txtUnitPrice;
+        private ModernTextBox txtDiscountPercent;
+        private ModernTextBox txtPromotionLabel;
+        private CheckBox chkRequiresPrescription;
         private DateTimePicker dtpExpiry;
-        private TextBox txtDescription;
-        private Button btnAdd;
-        private Button btnUpdate;
-        private Button btnDelete;
-        private Button btnRefresh;
+        private RoundedButton btnAdd;
+        private RoundedButton btnUpdate;
+        private RoundedButton btnDelete;
+        private RoundedButton btnClearForm;
         private DataGridView dgvMedicines;
         private Label lblLowStockAlert;
         private Label lblNearExpiryAlert;
-        private Label lblStatus;
 
         private List<MedicineCategory> _categories;
         private List<Medicine> _currentMedicines;
         private int _selectedMedicineId;
+        private string _selectedMedicineDescription;
 
         public MedicineForm(IMedicineService medicineService, IMedicineCategoryService categoryService)
         {
@@ -52,353 +56,107 @@ namespace SmartMed.UI.Forms
 
         private void InitializeComponents()
         {
-            Text = "SmartMed - Medicines";
-            StartPosition = FormStartPosition.CenterParent;
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
-            MinimizeBox = false;
-            ClientSize = new Size(860, 680);
-            ShowIcon = false;
+            Text = "Medicines";
+            BackColor = AppTheme.Background;
+            AutoScroll = true;
 
-            int labelX = 16;
-            int fieldX = 110;
-            int fieldWidth = 160;
-            int rowH = 30;
-            int colGap = 220;
+            Label title = new Label { AutoSize = true, Font = AppTheme.PageTitle, ForeColor = AppTheme.TextPrimary, Location = new Point(0, 0), Text = "Medicines" };
+            Controls.Add(title);
 
-            Label lblSearch = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, 16),
-                Text = "Search:"
-            };
+            txtSearch = new ModernTextBox { Location = new Point(0, 48), Width = 280, PlaceholderText = "Search medicines", LeadingIcon = IconFactory.Search };
+            Controls.Add(txtSearch);
 
-            txtSearch = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, 13),
-                Width = 200
-            };
-
-            btnSearch = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(320, 12),
-                Width = 70,
-                Height = 26,
-                Text = "Search"
-            };
+            btnSearch = new RoundedButton { Variant = ButtonVariant.Outline, Text = "Search", Location = new Point(292, 48), Width = 100 };
             btnSearch.Click += BtnSearch_Click;
+            Controls.Add(btnSearch);
 
-            btnClearSearch = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(396, 12),
-                Width = 70,
-                Height = 26,
-                Text = "Clear"
-            };
-            btnClearSearch.Click += (s, e) => { txtSearch.Text = ""; LoadMedicines(); };
+            btnAddNew = new RoundedButton { Variant = ButtonVariant.Primary, IconGlyph = IconFactory.Add, Text = "New Medicine", Location = new Point(700, 48), Width = 160 };
+            btnAddNew.Click += (s, e) => ClearFields();
+            Controls.Add(btnAddNew);
 
-            int row1 = 56;
-            Label lblCategory = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row1),
-                Text = "Category:"
-            };
+            lblLowStockAlert = new Label { AutoSize = true, Font = AppTheme.CaptionBold, ForeColor = AppTheme.Danger, Location = new Point(0, 96), Text = "" };
+            Controls.Add(lblLowStockAlert);
+            lblNearExpiryAlert = new Label { AutoSize = true, Font = AppTheme.CaptionBold, ForeColor = AppTheme.Warning, Location = new Point(320, 96), Text = "" };
+            Controls.Add(lblNearExpiryAlert);
 
-            cboCategory = new ComboBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row1 - 3),
-                Width = fieldWidth,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
+            dgvMedicines = new DataGridView { Location = new Point(0, 128), Size = new Size(900, 260), Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
+            DataGridViewStyler.Apply(dgvMedicines);
+            dgvMedicines.SelectionChanged += DgvMedicines_SelectionChanged;
+            Controls.Add(dgvMedicines);
 
-            Label lblName = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX + colGap, row1),
-                Text = "Name:"
-            };
+            CardPanel formCard = new CardPanel { Location = new Point(0, 400), Size = new Size(900, 300) };
+            Controls.Add(formCard);
 
-            txtName = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX + colGap, row1 - 3),
-                Width = fieldWidth
-            };
+            int labelX = 20;
+            int fieldX = 130;
+            int fieldWidth = 180;
+            int rowH = 36;
+            int colGap = 260;
 
-            int row2 = row1 + rowH;
-            Label lblBrand = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row2),
-                Text = "Brand:"
-            };
+            Label lblCategory = new Label { AutoSize = true, Font = AppTheme.Body, Location = new Point(labelX, 24), Text = "Category:" };
+            formCard.Controls.Add(lblCategory);
+            cboCategory = new ComboBox { Font = AppTheme.Body, Location = new Point(fieldX, 20), Width = fieldWidth, DropDownStyle = ComboBoxStyle.DropDownList };
+            formCard.Controls.Add(cboCategory);
 
-            txtBrand = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row2 - 3),
-                Width = fieldWidth
-            };
+            txtName = AddFormField(formCard, "Name:", labelX + colGap, fieldX + colGap, 20, fieldWidth);
 
-            Label lblDosageForm = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX + colGap, row2),
-                Text = "Dosage Form:"
-            };
+            int row2 = 20 + rowH;
+            txtBrand = AddFormField(formCard, "Brand:", labelX, fieldX, row2, fieldWidth);
 
-            cboDosageForm = new ComboBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX + colGap, row2 - 3),
-                Width = fieldWidth,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
+            Label lblDosageForm = new Label { AutoSize = true, Font = AppTheme.Body, Location = new Point(labelX + colGap, row2 + 4), Text = "Dosage Form:" };
+            formCard.Controls.Add(lblDosageForm);
+            cboDosageForm = new ComboBox { Font = AppTheme.Body, Location = new Point(fieldX + colGap, row2), Width = fieldWidth, DropDownStyle = ComboBoxStyle.DropDownList };
+            formCard.Controls.Add(cboDosageForm);
 
             int row3 = row2 + rowH;
-            Label lblStrength = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row3),
-                Text = "Strength:"
-            };
-
-            txtStrength = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row3 - 3),
-                Width = fieldWidth
-            };
-
-            Label lblUnit = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX + colGap, row3),
-                Text = "Unit:"
-            };
-
-            txtUnit = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX + colGap, row3 - 3),
-                Width = fieldWidth
-            };
+            txtStrength = AddFormField(formCard, "Strength:", labelX, fieldX, row3, fieldWidth);
+            txtUnit = AddFormField(formCard, "Unit:", labelX + colGap, fieldX + colGap, row3, fieldWidth);
 
             int row4 = row3 + rowH;
-            Label lblStockQty = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row4),
-                Text = "Stock Qty:"
-            };
-
-            txtStockQuantity = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row4 - 3),
-                Width = fieldWidth
-            };
-
-            Label lblReorder = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX + colGap, row4),
-                Text = "Reorder Level:"
-            };
-
-            txtReorderLevel = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX + colGap, row4 - 3),
-                Width = fieldWidth
-            };
+            txtStockQuantity = AddFormField(formCard, "Stock Qty:", labelX, fieldX, row4, fieldWidth);
+            txtReorderLevel = AddFormField(formCard, "Reorder Level:", labelX + colGap, fieldX + colGap, row4, fieldWidth);
 
             int row5 = row4 + rowH;
-            Label lblPrice = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row5),
-                Text = "Unit Price:"
-            };
+            txtUnitPrice = AddFormField(formCard, "Unit Price:", labelX, fieldX, row5, fieldWidth);
 
-            txtUnitPrice = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row5 - 3),
-                Width = fieldWidth
-            };
-
-            Label lblExpiry = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX + colGap, row5),
-                Text = "Expiry Date:"
-            };
-
-            dtpExpiry = new DateTimePicker
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX + colGap, row5 - 3),
-                Width = fieldWidth,
-                Format = DateTimePickerFormat.Short,
-                ShowCheckBox = true,
-                Checked = false
-            };
+            Label lblExpiry = new Label { AutoSize = true, Font = AppTheme.Body, Location = new Point(labelX + colGap, row5 + 4), Text = "Expiry Date:" };
+            formCard.Controls.Add(lblExpiry);
+            dtpExpiry = new DateTimePicker { Font = AppTheme.Body, Location = new Point(fieldX + colGap, row5), Width = fieldWidth, Format = DateTimePickerFormat.Short, ShowCheckBox = true, Checked = false };
+            formCard.Controls.Add(dtpExpiry);
 
             int row6 = row5 + rowH;
-            Label lblDescription = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, row6),
-                Text = "Description:"
-            };
+            txtDiscountPercent = AddFormField(formCard, "Discount %:", labelX, fieldX, row6, fieldWidth);
+            txtPromotionLabel = AddFormField(formCard, "Promotion:", labelX + colGap, fieldX + colGap, row6, fieldWidth);
 
-            txtDescription = new TextBox
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(fieldX, row6 - 3),
-                Width = 350,
-                Height = 50,
-                Multiline = true
-            };
+            int row7 = row6 + rowH;
+            chkRequiresPrescription = new CheckBox { Font = AppTheme.Body, Location = new Point(labelX, row7), AutoSize = true, Text = "Requires prescription" };
+            formCard.Controls.Add(chkRequiresPrescription);
 
-            int buttonsY = row6 + 60;
-            btnAdd = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(labelX, buttonsY),
-                Width = 80,
-                Height = 28,
-                Text = "Add"
-            };
+            int buttonsY = row7 + 40;
+            btnAdd = new RoundedButton { Variant = ButtonVariant.Primary, Text = "Add", Location = new Point(labelX, buttonsY), Width = 100 };
             btnAdd.Click += BtnAdd_Click;
+            formCard.Controls.Add(btnAdd);
 
-            btnUpdate = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(104, buttonsY),
-                Width = 80,
-                Height = 28,
-                Text = "Update"
-            };
+            btnUpdate = new RoundedButton { Variant = ButtonVariant.Secondary, Text = "Update", Location = new Point(labelX + 108, buttonsY), Width = 100 };
             btnUpdate.Click += BtnUpdate_Click;
+            formCard.Controls.Add(btnUpdate);
 
-            btnDelete = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(192, buttonsY),
-                Width = 80,
-                Height = 28,
-                Text = "Delete"
-            };
+            btnDelete = new RoundedButton { Variant = ButtonVariant.Danger, Text = "Delete", Location = new Point(labelX + 216, buttonsY), Width = 100 };
             btnDelete.Click += BtnDelete_Click;
+            formCard.Controls.Add(btnDelete);
 
-            btnRefresh = new Button
-            {
-                Font = new Font("Segoe UI", 10F),
-                Location = new Point(280, buttonsY),
-                Width = 80,
-                Height = 28,
-                Text = "Refresh"
-            };
-            btnRefresh.Click += (s, e) => { txtSearch.Text = ""; LoadMedicines(); };
+            btnClearForm = new RoundedButton { Variant = ButtonVariant.Ghost, Text = "Clear", Location = new Point(labelX + 324, buttonsY), Width = 100 };
+            btnClearForm.Click += (s, e) => ClearFields();
+            formCard.Controls.Add(btnClearForm);
+        }
 
-            int alertsY = buttonsY + 40;
-            lblLowStockAlert = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                ForeColor = Color.Red,
-                Location = new Point(labelX, alertsY),
-                Text = ""
-            };
-
-            lblNearExpiryAlert = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                ForeColor = Color.OrangeRed,
-                Location = new Point(300, alertsY),
-                Text = ""
-            };
-
-            int gridY = alertsY + 24;
-            dgvMedicines = new DataGridView
-            {
-                Location = new Point(labelX, gridY),
-                Width = 820,
-                Height = 260,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor = Color.White
-            };
-            dgvMedicines.SelectionChanged += DgvMedicines_SelectionChanged;
-
-            lblStatus = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.Green,
-                Location = new Point(labelX, gridY + 270),
-                Width = 800,
-                Text = "Ready"
-            };
-
-            Controls.Add(lblSearch);
-            Controls.Add(txtSearch);
-            Controls.Add(btnSearch);
-            Controls.Add(btnClearSearch);
-            Controls.Add(lblCategory);
-            Controls.Add(cboCategory);
-            Controls.Add(lblName);
-            Controls.Add(txtName);
-            Controls.Add(lblBrand);
-            Controls.Add(txtBrand);
-            Controls.Add(lblDosageForm);
-            Controls.Add(cboDosageForm);
-            Controls.Add(lblStrength);
-            Controls.Add(txtStrength);
-            Controls.Add(lblUnit);
-            Controls.Add(txtUnit);
-            Controls.Add(lblStockQty);
-            Controls.Add(txtStockQuantity);
-            Controls.Add(lblReorder);
-            Controls.Add(txtReorderLevel);
-            Controls.Add(lblPrice);
-            Controls.Add(txtUnitPrice);
-            Controls.Add(lblExpiry);
-            Controls.Add(dtpExpiry);
-            Controls.Add(lblDescription);
-            Controls.Add(txtDescription);
-            Controls.Add(btnAdd);
-            Controls.Add(btnUpdate);
-            Controls.Add(btnDelete);
-            Controls.Add(btnRefresh);
-            Controls.Add(lblLowStockAlert);
-            Controls.Add(lblNearExpiryAlert);
-            Controls.Add(dgvMedicines);
-            Controls.Add(lblStatus);
+        private ModernTextBox AddFormField(Control parent, string labelText, int labelX, int fieldX, int y, int width)
+        {
+            Label label = new Label { AutoSize = true, Font = AppTheme.Body, Location = new Point(labelX, y + 10), Text = labelText };
+            parent.Controls.Add(label);
+            ModernTextBox field = new ModernTextBox { Location = new Point(fieldX, y), Width = width };
+            parent.Controls.Add(field);
+            return field;
         }
 
         private void LoadCategories()
@@ -435,16 +193,11 @@ namespace SmartMed.UI.Forms
                 {
                     _currentMedicines = result.Data;
                     BindMedicines(_currentMedicines);
-                    SetStatus($"Loaded {_currentMedicines.Count} medicines.", Color.Green);
-                }
-                else
-                {
-                    SetStatus(result.Message, Color.Red);
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                SetStatus($"Error loading medicines: {ex.Message}", Color.Red);
+                _currentMedicines = new List<Medicine>();
             }
 
             UpdateAlerts();
@@ -452,49 +205,24 @@ namespace SmartMed.UI.Forms
 
         private void BindMedicines(List<Medicine> medicines)
         {
-            var displayData = medicines.ConvertAll(m => new MedicineDisplayItem
+            var displayData = medicines.ConvertAll(m => new
             {
-                Id = m.Id,
+                m.Id,
                 Category = GetCategoryName(m.CategoryId),
-                Name = m.Name,
-                Brand = m.Brand,
+                m.Name,
+                m.Brand,
                 DosageForm = m.DosageForm.ToString(),
-                Strength = m.Strength,
-                Unit = m.Unit,
-                StockQuantity = m.StockQuantity,
-                ReorderLevel = m.ReorderLevel,
-                UnitPrice = m.UnitPrice.ToString("C2"),
-                ExpiryDate = m.ExpiryDate?.ToString("yyyy-MM-dd") ?? "",
-                Description = m.Description
+                Stock = m.StockQuantity,
+                Price = m.UnitPrice.ToString("C2"),
+                Discount = m.DiscountPercent > 0 ? $"{m.DiscountPercent:0}%" : "",
+                Rx = m.RequiresPrescription ? "Yes" : ""
             });
 
             dgvMedicines.DataSource = null;
             dgvMedicines.DataSource = displayData;
 
             if (dgvMedicines.Columns.Contains("Id"))
-                dgvMedicines.Columns["Id"].Width = 35;
-            if (dgvMedicines.Columns.Contains("Category"))
-                dgvMedicines.Columns["Category"].Width = 100;
-            if (dgvMedicines.Columns.Contains("Name"))
-                dgvMedicines.Columns["Name"].Width = 120;
-            if (dgvMedicines.Columns.Contains("Brand"))
-                dgvMedicines.Columns["Brand"].Width = 90;
-            if (dgvMedicines.Columns.Contains("DosageForm"))
-                dgvMedicines.Columns["DosageForm"].Width = 80;
-            if (dgvMedicines.Columns.Contains("StockQuantity"))
-                dgvMedicines.Columns["StockQuantity"].Width = 60;
-            if (dgvMedicines.Columns.Contains("UnitPrice"))
-                dgvMedicines.Columns["UnitPrice"].Width = 70;
-            if (dgvMedicines.Columns.Contains("ExpiryDate"))
-                dgvMedicines.Columns["ExpiryDate"].Width = 80;
-            if (dgvMedicines.Columns.Contains("Strength"))
-                dgvMedicines.Columns["Strength"].Visible = false;
-            if (dgvMedicines.Columns.Contains("Unit"))
-                dgvMedicines.Columns["Unit"].Visible = false;
-            if (dgvMedicines.Columns.Contains("ReorderLevel"))
-                dgvMedicines.Columns["ReorderLevel"].Visible = false;
-            if (dgvMedicines.Columns.Contains("Description"))
-                dgvMedicines.Columns["Description"].Visible = false;
+                dgvMedicines.Columns["Id"].Visible = false;
         }
 
         private void UpdateAlerts()
@@ -505,20 +233,14 @@ namespace SmartMed.UI.Forms
                 if (lowStock.IsSuccess)
                 {
                     int count = lowStock.Data.Count;
-                    lblLowStockAlert.Text = count > 0
-                        ? $"Low Stock Alert: {count} medicine(s)"
-                        : "All medicines are well-stocked.";
-                    lblLowStockAlert.ForeColor = count > 0 ? Color.Red : Color.Green;
+                    lblLowStockAlert.Text = count > 0 ? $"⚠ Low Stock: {count} medicine(s)" : "";
                 }
 
                 OperationResult<List<Medicine>> nearExpiry = _medicineService.GetNearExpiryMedicines();
                 if (nearExpiry.IsSuccess)
                 {
                     int count = nearExpiry.Data.Count;
-                    lblNearExpiryAlert.Text = count > 0
-                        ? $"Near Expiry Alert: {count} medicine(s)"
-                        : "No medicines near expiry.";
-                    lblNearExpiryAlert.ForeColor = count > 0 ? Color.OrangeRed : Color.Green;
+                    lblNearExpiryAlert.Text = count > 0 ? $"⚠ Near Expiry: {count} medicine(s)" : "";
                 }
             }
             catch
@@ -535,23 +257,11 @@ namespace SmartMed.UI.Forms
                 return;
             }
 
-            try
+            OperationResult<List<Medicine>> result = _medicineService.SearchMedicines(keyword);
+            if (result.IsSuccess)
             {
-                OperationResult<List<Medicine>> result = _medicineService.SearchMedicines(keyword);
-                if (result.IsSuccess)
-                {
-                    _currentMedicines = result.Data;
-                    BindMedicines(_currentMedicines);
-                    SetStatus($"Found {_currentMedicines.Count} medicine(s).", Color.Green);
-                }
-                else
-                {
-                    SetStatus(result.Message, Color.Red);
-                }
-            }
-            catch (Exception ex)
-            {
-                SetStatus($"Search error: {ex.Message}", Color.Red);
+                _currentMedicines = result.Data;
+                BindMedicines(_currentMedicines);
             }
         }
 
@@ -564,6 +274,7 @@ namespace SmartMed.UI.Forms
                 {
                     Medicine medicine = _currentMedicines[rowIndex];
                     _selectedMedicineId = medicine.Id;
+                    _selectedMedicineDescription = medicine.Description;
                     PopulateFields(medicine);
                 }
             }
@@ -598,6 +309,9 @@ namespace SmartMed.UI.Forms
             txtStockQuantity.Text = medicine.StockQuantity.ToString();
             txtReorderLevel.Text = medicine.ReorderLevel.ToString();
             txtUnitPrice.Text = medicine.UnitPrice.ToString("F2");
+            txtDiscountPercent.Text = medicine.DiscountPercent.ToString("F0");
+            txtPromotionLabel.Text = medicine.PromotionLabel ?? "";
+            chkRequiresPrescription.Checked = medicine.RequiresPrescription;
 
             if (medicine.ExpiryDate.HasValue)
             {
@@ -609,11 +323,12 @@ namespace SmartMed.UI.Forms
                 dtpExpiry.Checked = false;
             }
 
-            txtDescription.Text = medicine.Description ?? "";
         }
 
         private void ClearFields()
         {
+            _selectedMedicineId = 0;
+            _selectedMedicineDescription = null;
             cboCategory.SelectedIndex = 0;
             txtName.Text = "";
             txtBrand.Text = "";
@@ -623,8 +338,11 @@ namespace SmartMed.UI.Forms
             txtStockQuantity.Text = "";
             txtReorderLevel.Text = "";
             txtUnitPrice.Text = "";
+            txtDiscountPercent.Text = "";
+            txtPromotionLabel.Text = "";
+            chkRequiresPrescription.Checked = false;
             dtpExpiry.Checked = false;
-            txtDescription.Text = "";
+            dgvMedicines.ClearSelection();
         }
 
         private Medicine ReadMedicineFromFields()
@@ -637,18 +355,12 @@ namespace SmartMed.UI.Forms
             if (cboDosageForm.SelectedIndex >= 0)
                 dosageForm = (DosageForm)cboDosageForm.Items[cboDosageForm.SelectedIndex];
 
-            int stockQty = 0;
-            int.TryParse(txtStockQuantity.Text.Trim(), out stockQty);
+            int.TryParse(txtStockQuantity.Text.Trim(), out int stockQty);
+            int.TryParse(txtReorderLevel.Text.Trim(), out int reorderLevel);
+            decimal.TryParse(txtUnitPrice.Text.Trim(), out decimal unitPrice);
+            decimal.TryParse(txtDiscountPercent.Text.Trim(), out decimal discountPercent);
 
-            int reorderLevel = 0;
-            int.TryParse(txtReorderLevel.Text.Trim(), out reorderLevel);
-
-            decimal unitPrice = 0;
-            decimal.TryParse(txtUnitPrice.Text.Trim(), out unitPrice);
-
-            DateTime? expiryDate = null;
-            if (dtpExpiry.Checked)
-                expiryDate = dtpExpiry.Value;
+            DateTime? expiryDate = dtpExpiry.Checked ? dtpExpiry.Value : (DateTime?)null;
 
             return new Medicine
             {
@@ -661,8 +373,11 @@ namespace SmartMed.UI.Forms
                 StockQuantity = stockQty,
                 ReorderLevel = reorderLevel,
                 UnitPrice = unitPrice,
+                DiscountPercent = discountPercent,
+                PromotionLabel = string.IsNullOrWhiteSpace(txtPromotionLabel.Text) ? null : txtPromotionLabel.Text.Trim(),
+                RequiresPrescription = chkRequiresPrescription.Checked,
                 ExpiryDate = expiryDate,
-                Description = txtDescription.Text.Trim()
+                Description = _selectedMedicineDescription
             };
         }
 
@@ -675,11 +390,11 @@ namespace SmartMed.UI.Forms
             {
                 ClearFields();
                 LoadMedicines();
-                SetStatus("Medicine added successfully.", Color.Green);
+                ToastNotifier.Show(FindForm(), "Medicine added successfully.");
             }
             else
             {
-                SetStatus(result.Message, Color.Red);
+                ToastNotifier.Show(FindForm(), result.Message, ToastKind.Error);
             }
         }
 
@@ -687,7 +402,7 @@ namespace SmartMed.UI.Forms
         {
             if (_selectedMedicineId <= 0)
             {
-                SetStatus("Please select a medicine to update.", Color.Red);
+                ToastNotifier.Show(FindForm(), "Select a medicine to update.", ToastKind.Warning);
                 return;
             }
 
@@ -699,11 +414,11 @@ namespace SmartMed.UI.Forms
             if (result.IsSuccess)
             {
                 LoadMedicines();
-                SetStatus("Medicine updated successfully.", Color.Green);
+                ToastNotifier.Show(FindForm(), "Medicine updated successfully.");
             }
             else
             {
-                SetStatus(result.Message, Color.Red);
+                ToastNotifier.Show(FindForm(), result.Message, ToastKind.Error);
             }
         }
 
@@ -711,7 +426,7 @@ namespace SmartMed.UI.Forms
         {
             if (_selectedMedicineId <= 0)
             {
-                SetStatus("Please select a medicine to delete.", Color.Red);
+                ToastNotifier.Show(FindForm(), "Select a medicine to delete.", ToastKind.Warning);
                 return;
             }
 
@@ -733,11 +448,11 @@ namespace SmartMed.UI.Forms
             {
                 ClearFields();
                 LoadMedicines();
-                SetStatus("Medicine deleted successfully.", Color.Green);
+                ToastNotifier.Show(FindForm(), "Medicine deleted successfully.");
             }
             else
             {
-                SetStatus(result.Message, Color.Red);
+                ToastNotifier.Show(FindForm(), result.Message, ToastKind.Error);
             }
         }
 
@@ -746,27 +461,5 @@ namespace SmartMed.UI.Forms
             MedicineCategory cat = _categories?.Find(c => c.Id == categoryId);
             return cat?.Name ?? "Unknown";
         }
-
-        private void SetStatus(string message, Color color)
-        {
-            lblStatus.Text = message;
-            lblStatus.ForeColor = color;
-        }
-    }
-
-    internal class MedicineDisplayItem
-    {
-        public int Id { get; set; }
-        public string Category { get; set; }
-        public string Name { get; set; }
-        public string Brand { get; set; }
-        public string DosageForm { get; set; }
-        public string Strength { get; set; }
-        public string Unit { get; set; }
-        public int StockQuantity { get; set; }
-        public int ReorderLevel { get; set; }
-        public string UnitPrice { get; set; }
-        public string ExpiryDate { get; set; }
-        public string Description { get; set; }
     }
 }

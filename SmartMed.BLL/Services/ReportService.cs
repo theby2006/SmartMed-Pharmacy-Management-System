@@ -382,26 +382,41 @@ namespace SmartMed.BLL.Services
                     return OperationResult<byte[]>.Failure("No data to export.");
 
                 PropertyInfo[] properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                StringBuilder sb = new StringBuilder();
+                List<string> headers = properties.Select(p => p.Name).ToList();
 
-                sb.AppendLine(string.Join("\t", properties.Select(p => p.Name)));
+                List<object[]> rows = data
+                    .Select(item => properties.Select(p => p.GetValue(item)).ToArray())
+                    .ToList();
 
-                foreach (T item in data)
-                {
-                    IEnumerable<string> values = properties.Select(p =>
-                    {
-                        object value = p.GetValue(item);
-                        return FormatValue(value);
-                    });
-                    sb.AppendLine(string.Join("\t", values));
-                }
-
-                byte[] bytes = Encoding.UTF8.GetBytes(sb.ToString());
+                byte[] bytes = XlsxWriter.Write(typeof(T).Name, headers, rows);
                 return OperationResult<byte[]>.Success(bytes);
             }
             catch (Exception ex)
             {
                 return OperationResult<byte[]>.Failure($"Failed to export Excel: {ex.Message}");
+            }
+        }
+
+        public OperationResult<byte[]> ExportToPdf<T>(string title, List<T> data)
+        {
+            try
+            {
+                if (data == null || data.Count == 0)
+                    return OperationResult<byte[]>.Failure("No data to export.");
+
+                PropertyInfo[] properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                string[] headers = properties.Select(p => p.Name).ToArray();
+
+                List<string[]> rows = data
+                    .Select(item => properties.Select(p => FormatValue(p.GetValue(item))).ToArray())
+                    .ToList();
+
+                byte[] bytes = SmartMed.Reports.PdfExporter.ExportTable(title ?? typeof(T).Name, headers, rows);
+                return OperationResult<byte[]>.Success(bytes);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<byte[]>.Failure($"Failed to export PDF: {ex.Message}");
             }
         }
 

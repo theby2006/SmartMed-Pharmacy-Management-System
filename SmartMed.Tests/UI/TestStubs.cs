@@ -28,6 +28,29 @@ namespace SmartMed.Tests.UI
         public void UpdateActiveStatus(int userId, bool isActive) { }
     }
 
+    internal class StubCustomerRepository : ICustomerRepository
+    {
+        public Customer GetById(int id) => null;
+        public Customer GetByPhoneOrEmail(string identifier) => null;
+        public List<Customer> GetAll() => new List<Customer>();
+        public List<Customer> Search(string keyword) => new List<Customer>();
+        public int Add(Customer customer) => 1;
+        public void Update(Customer customer) { }
+        public void UpdatePin(int customerId, string pinHash, string pinSalt) { }
+        public void UpdateActiveStatus(int customerId, bool isActive) { }
+        public bool ExistsByPhoneOrEmail(string phoneNumber, string email) => false;
+    }
+
+    internal class StubCustomerService : ICustomerService
+    {
+        public OperationResult<int> RegisterCustomer(Customer customer, string pin) => OperationResult<int>.Success(1);
+        public OperationResult UpdateProfile(Customer customer) => OperationResult.Success();
+        public OperationResult<List<Customer>> GetAllCustomers() => OperationResult<List<Customer>>.Success(new List<Customer>());
+        public OperationResult<List<Customer>> SearchCustomers(string keyword) => OperationResult<List<Customer>>.Success(new List<Customer>());
+        public OperationResult<Customer> GetCustomerById(int id) => OperationResult<Customer>.Failure("Not found");
+        public OperationResult DeactivateCustomer(int id) => OperationResult.Success();
+    }
+
     internal class StubPasswordHasher : IPasswordHasher
     {
         public string HashPassword(string password, string salt) => "hash";
@@ -38,6 +61,7 @@ namespace SmartMed.Tests.UI
     internal class StubSessionManager : ISessionManager
     {
         public SessionContext StartSession(User user) => new SessionContext { UserId = user.Id };
+        public SessionContext StartCustomerSession(Customer customer) => new SessionContext { CustomerId = customer.Id };
         public void EndSession() { }
         public SessionContext CurrentSession => null;
         public bool IsActive => false;
@@ -50,6 +74,11 @@ namespace SmartMed.Tests.UI
         public void LogLogout(int? userId, string username, string machineName) { }
         public void LogFailedAttempt(string username, string machineName, string details) { }
         public void Log(int? userId, string username, AuditAction action, string machineName, string details) { }
+        public List<AuditLogEntry> GetAll(int limit = 100) => new List<AuditLogEntry>();
+        public List<AuditLogEntry> GetByDateRange(DateTime from, DateTime to) => new List<AuditLogEntry>();
+        public List<AuditLogEntry> GetByAction(AuditAction action) => new List<AuditLogEntry>();
+        public List<AuditLogEntry> GetByUser(int? userId) => new List<AuditLogEntry>();
+        public List<AuditLogEntry> Search(string keyword, int limit = 50) => new List<AuditLogEntry>();
     }
 
     internal class StubSupplierService : ISupplierService
@@ -243,6 +272,8 @@ namespace SmartMed.Tests.UI
             OperationResult<byte[]>.Success(new byte[0]);
         public OperationResult<byte[]> ExportToExcel<T>(List<T> data) =>
             OperationResult<byte[]>.Success(new byte[0]);
+        public OperationResult<byte[]> ExportToPdf<T>(string title, List<T> data) =>
+            OperationResult<byte[]>.Success(new byte[0]);
     }
 
     internal class StubSessionManagerForSales : ISessionManager
@@ -256,6 +287,7 @@ namespace SmartMed.Tests.UI
         };
         public bool IsActive => true;
         public SessionContext StartSession(User user) => CurrentSession;
+        public SessionContext StartCustomerSession(Customer customer) => CurrentSession;
         public void EndSession() { }
         public bool HasRole(RoleType role) => role == RoleType.Cashier;
     }

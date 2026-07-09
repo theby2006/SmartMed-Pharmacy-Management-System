@@ -20,6 +20,13 @@ namespace SmartMed.Models.Enums
         BackupCreated = 16,
         DatabaseRestored = 17,
         SystemHealthCheck = 18,
-        MaintenancePerformed = 19
+        MaintenancePerformed = 19,
+        CustomerRegistered = 20,
+        CustomerUpdated = 21,
+        CustomerDeactivated = 22,
+        OrderPlaced = 23,
+        OrderStatusChanged = 24,
+        OrderCancelled = 25,
+        PrescriptionUploaded = 26
     }
 }

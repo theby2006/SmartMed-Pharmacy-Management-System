@@ -19,6 +19,6 @@ namespace SmartMed.Models.Session
 
         public DateTime LastActivityTimeUtc { get; set; }
 
-        public bool IsAuthenticated => UserId.HasValue;
+        public bool IsAuthenticated => UserId.HasValue || CustomerId.HasValue;
     }
 }

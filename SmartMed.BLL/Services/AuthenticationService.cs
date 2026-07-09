@@ -15,6 +15,7 @@ namespace SmartMed.BLL.Services
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IUserRepository _userRepository;
+        private readonly ICustomerRepository _customerRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly ISessionManager _sessionManager;
         private readonly IAuditLogRepository _auditLogRepository;
@@ -23,16 +24,19 @@ namespace SmartMed.BLL.Services
 
         public AuthenticationService(
             IUserRepository userRepository,
+            ICustomerRepository customerRepository,
             IPasswordHasher passwordHasher,
             ISessionManager sessionManager,
             IAuditLogRepository auditLogRepository)
         {
             Guard.AgainstNull(userRepository, nameof(userRepository));
+            Guard.AgainstNull(customerRepository, nameof(customerRepository));
             Guard.AgainstNull(passwordHasher, nameof(passwordHasher));
             Guard.AgainstNull(sessionManager, nameof(sessionManager));
             Guard.AgainstNull(auditLogRepository, nameof(auditLogRepository));
 
             _userRepository = userRepository;
+            _customerRepository = customerRepository;
             _passwordHasher = passwordHasher;
             _sessionManager = sessionManager;
             _auditLogRepository = auditLogRepository;
@@ -134,9 +138,9 @@ namespace SmartMed.BLL.Services
                 return OperationResult<SessionContext>.Failure("Invalid PIN format.");
             }
 
-            User user = _userRepository.GetByUsername(identifier);
+            Customer customer = _customerRepository.GetByPhoneOrEmail(identifier);
 
-            if (user == null || user.Role != RoleType.Customer)
+            if (customer == null || !customer.IsActive)
             {
                 string machineName = Environment.MachineName;
                 _auditLogRepository.LogFailedAttempt(identifier, machineName, "Customer not found");
@@ -145,7 +149,7 @@ namespace SmartMed.BLL.Services
 
             if (customerPinEnabled)
             {
-                bool pinValid = _passwordHasher.VerifyPassword(pin, user.PasswordHash, user.PasswordSalt);
+                bool pinValid = _passwordHasher.VerifyPassword(pin, customer.PinHash, customer.PinSalt);
                 if (!pinValid)
                 {
                     string machineName = Environment.MachineName;
@@ -155,9 +159,9 @@ namespace SmartMed.BLL.Services
             }
 
             string machine = Environment.MachineName;
-            _auditLogRepository.LogLogin(user.Id, user.Username, machine);
+            _auditLogRepository.Log(null, customer.PhoneNumber, AuditAction.Login, machine, "Customer login");
 
-            SessionContext session = _sessionManager.StartSession(user);
+            SessionContext session = _sessionManager.StartCustomerSession(customer);
 
             return OperationResult<SessionContext>.Success(session, "Customer login successful.");
         }

@@ -40,6 +40,27 @@ namespace SmartMed.BLL.Services
             }
         }
 
+        public SessionContext StartCustomerSession(Customer customer)
+        {
+            lock (_lock)
+            {
+                DateTime utcNow = DateTime.UtcNow;
+
+                _currentSession = new SessionContext
+                {
+                    UserId = null,
+                    CustomerId = customer.Id,
+                    Username = customer.PhoneNumber,
+                    DisplayName = customer.FullName,
+                    Role = RoleType.Customer,
+                    LoginTimeUtc = utcNow,
+                    LastActivityTimeUtc = utcNow
+                };
+
+                return _currentSession;
+            }
+        }
+
         public void EndSession()
         {
             lock (_lock)

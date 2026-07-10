@@ -56,7 +56,18 @@ namespace SmartMed.BLL.Services
                 return OperationResult<SessionContext>.Failure(ex.Message);
             }
 
-            User user = _userRepository.GetByUsername(username);
+            User user;
+            try
+            {
+                user = _userRepository.GetByUsername(username);
+            }
+            catch (DataAccessException ex)
+            {
+                string machineName = Environment.MachineName;
+                _auditLogRepository.LogFailedAttempt(username, machineName, "User lookup failed: " + ex.Message);
+                return OperationResult<SessionContext>.Failure(
+                    "A system error occurred while looking up the user. Please try again.");
+            }
 
             if (user == null)
             {

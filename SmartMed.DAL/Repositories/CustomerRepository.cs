@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using SmartMed.Common.Exceptions;
 using SmartMed.Common.Helpers;
+using SmartMed.DAL.Infrastructure;
 using SmartMed.DAL.Interfaces;
 using SmartMed.Models.Entities;
 
@@ -49,77 +50,68 @@ namespace SmartMed.DAL.Repositories
         {
             Guard.AgainstNullOrWhiteSpace(identifier, nameof(identifier));
             string sql = SelectColumns + " WHERE PhoneNumber = @Identifier OR Email = @Identifier";
+            const string tag = "CUSTOMER-LOOKUP-DEBUG";
 
-            // TEMPORARY DIAGNOSTIC — captured before Open() so they're available in the
-            // catch block even if Open() itself is what throws.
-            string debugDataSource = "(unknown - connection not yet constructed)";
-            string debugDatabase = "(unknown - connection not yet constructed)";
-
-            try
+            using (SqlConnection connection = _connectionFactory.CreateConnection())
+            using (SqlCommand command = new SqlCommand(sql, connection))
             {
-                using (SqlConnection connection = _connectionFactory.CreateConnection())
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                string debugDataSource = connection.DataSource;
+                string debugDatabase = connection.Database;
+                command.Parameters.AddWithValue("@Identifier", identifier);
+
+                // Step 1: Open() — caught separately so an Open()-time failure
+                // (connection/auth/network) can never be confused with an
+                // ExecuteReader()-time failure (query/permission/lock).
+                try
                 {
-                    debugDataSource = connection.DataSource;
-                    debugDatabase = connection.Database;
-
-                    command.Parameters.AddWithValue("@Identifier", identifier);
-
                     System.Diagnostics.Debug.WriteLine(
-                        $"[CUSTOMER-LOOKUP-DEBUG] Before connection.Open(): DataSource='{debugDataSource}', " +
+                        $"[{tag}] Before connection.Open(): DataSource='{debugDataSource}', " +
                         $"Database='{debugDatabase}', State={connection.State}");
 
                     connection.Open();
 
                     System.Diagnostics.Debug.WriteLine(
-                        $"[CUSTOMER-LOOKUP-DEBUG] After connection.Open(): State={connection.State}, " +
-                        $"connection.Database='{connection.Database}'");
+                        $"[{tag}] After connection.Open(): State={connection.State}, " +
+                        $"ServerVersion='{connection.ServerVersion}', connection.Database='{connection.Database}'");
+                }
+                catch (SqlException exception)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[{tag}] *** SqlException thrown BY connection.Open() ***");
+                    SqlDiagnostics.LogSqlException(tag, exception, debugDataSource, debugDatabase);
+                    throw; // TEMPORARY DIAGNOSTIC — restore `throw new DataAccessException(...)` once root cause confirmed.
+                }
 
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[CUSTOMER-LOOKUP-DEBUG] CommandText='{command.CommandText}'");
+                // Step 2: build/execute the command — caught separately from Open().
+                try
+                {
+                    System.Diagnostics.Debug.WriteLine($"[{tag}] CommandText='{command.CommandText}'");
                     foreach (SqlParameter p in command.Parameters)
                     {
                         System.Diagnostics.Debug.WriteLine(
-                            $"[CUSTOMER-LOOKUP-DEBUG] Parameter {p.ParameterName} = '{p.Value}' (SqlDbType={p.SqlDbType}, Size={p.Size})");
+                            $"[{tag}] Parameter {p.ParameterName} = '{p.Value}' (SqlDbType={p.SqlDbType}, Size={p.Size})");
                     }
 
-                    System.Diagnostics.Debug.WriteLine("[CUSTOMER-LOOKUP-DEBUG] Before ExecuteReader()");
+                    System.Diagnostics.Debug.WriteLine($"[{tag}] Before ExecuteReader()");
 
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        System.Diagnostics.Debug.WriteLine("[CUSTOMER-LOOKUP-DEBUG] After ExecuteReader(), before reader.Read()");
+                        System.Diagnostics.Debug.WriteLine($"[{tag}] After ExecuteReader(), before reader.Read()");
 
                         bool hasRow = reader.Read();
 
-                        System.Diagnostics.Debug.WriteLine(
-                            $"[CUSTOMER-LOOKUP-DEBUG] After reader.Read(): hasRow={hasRow}");
+                        System.Diagnostics.Debug.WriteLine($"[{tag}] After reader.Read(): hasRow={hasRow}");
 
                         if (hasRow) return MapCustomer(reader);
                     }
                 }
+                catch (SqlException exception)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[{tag}] *** SqlException thrown BY ExecuteReader()/reader.Read() ***");
+                    SqlDiagnostics.LogSqlException(tag, exception, debugDataSource, debugDatabase);
+                    throw; // TEMPORARY DIAGNOSTIC — restore `throw new DataAccessException(...)` once root cause confirmed.
+                }
             }
-            catch (SqlException exception)
-            {
-                // TEMPORARY DIAGNOSTIC — full exception detail for root-cause identification.
-                System.Diagnostics.Debug.WriteLine(
-                    "[CUSTOMER-LOOKUP-DEBUG] *** SqlException caught in CustomerRepository.GetByPhoneOrEmail ***");
-                System.Diagnostics.Debug.WriteLine($"[CUSTOMER-LOOKUP-DEBUG] Number={exception.Number}");
-                System.Diagnostics.Debug.WriteLine($"[CUSTOMER-LOOKUP-DEBUG] Message='{exception.Message}'");
-                System.Diagnostics.Debug.WriteLine($"[CUSTOMER-LOOKUP-DEBUG] State={exception.State}");
-                System.Diagnostics.Debug.WriteLine($"[CUSTOMER-LOOKUP-DEBUG] LineNumber={exception.LineNumber}");
-                System.Diagnostics.Debug.WriteLine($"[CUSTOMER-LOOKUP-DEBUG] Class={exception.Class}");
-                System.Diagnostics.Debug.WriteLine($"[CUSTOMER-LOOKUP-DEBUG] Procedure='{exception.Procedure}'");
-                System.Diagnostics.Debug.WriteLine($"[CUSTOMER-LOOKUP-DEBUG] Server='{exception.Server}'");
-                System.Diagnostics.Debug.WriteLine($"[CUSTOMER-LOOKUP-DEBUG] DataSource='{debugDataSource}'");
-                System.Diagnostics.Debug.WriteLine($"[CUSTOMER-LOOKUP-DEBUG] Database='{debugDatabase}'");
-                System.Diagnostics.Debug.WriteLine($"[CUSTOMER-LOOKUP-DEBUG] StackTrace={exception.StackTrace}");
 
-                // TEMPORARY DIAGNOSTIC: rethrow the ORIGINAL SqlException unwrapped so the
-                // debugger breaks at the true throw site instead of one frame later at
-                // DataAccessException. Restore the line below once root cause is confirmed:
-                //     throw new DataAccessException("Failed to retrieve customer by phone or email.", exception);
-                throw;
-            }
             return null;
         }
 

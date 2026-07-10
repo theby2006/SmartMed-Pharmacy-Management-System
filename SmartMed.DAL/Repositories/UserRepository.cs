@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using SmartMed.Common.Exceptions;
 using SmartMed.Common.Helpers;
+using SmartMed.DAL.Infrastructure;
 using SmartMed.DAL.Interfaces;
 using SmartMed.Models.Entities;
 using SmartMed.Models.Enums;
@@ -57,27 +58,69 @@ namespace SmartMed.DAL.Repositories
             const string sql = "SELECT Id, Username, PasswordHash, PasswordSalt, DisplayName, Role, Email, " +
                                "FailedLoginAttempts, LockedUntil, LastLogin, IsActive, CreatedDate, UpdatedDate " +
                                "FROM Users WHERE Username = @Username";
+            const string tag = "USER-LOGIN-DEBUG";
 
-            try
+            using (SqlConnection connection = _connectionFactory.CreateConnection())
+            using (SqlCommand command = new SqlCommand(sql, connection))
             {
-                using (SqlConnection connection = _connectionFactory.CreateConnection())
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                string debugDataSource = connection.DataSource;
+                string debugDatabase = connection.Database;
+                command.Parameters.AddWithValue("@Username", username);
+
+                // Step 1: Open() — caught separately so an Open()-time failure
+                // (connection/auth/network) can never be confused with an
+                // ExecuteReader()-time failure (query/permission/lock).
+                try
                 {
-                    command.Parameters.AddWithValue("@Username", username);
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[{tag}] Before connection.Open(): DataSource='{debugDataSource}', " +
+                        $"Database='{debugDatabase}', State={connection.State}");
 
                     connection.Open();
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[{tag}] After connection.Open(): State={connection.State}, " +
+                        $"ServerVersion='{connection.ServerVersion}', connection.Database='{connection.Database}'");
+                }
+                catch (SqlException exception)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[{tag}] *** SqlException thrown BY connection.Open() ***");
+                    SqlDiagnostics.LogSqlException(tag, exception, debugDataSource, debugDatabase);
+                    throw; // TEMPORARY DIAGNOSTIC — restore `throw new DataAccessException(...)` once root cause confirmed.
+                }
+
+                // Step 2: build/execute the command — caught separately from Open().
+                try
+                {
+                    System.Diagnostics.Debug.WriteLine($"[{tag}] CommandText='{command.CommandText}'");
+                    foreach (SqlParameter p in command.Parameters)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            $"[{tag}] Parameter {p.ParameterName} = '{p.Value}' (SqlDbType={p.SqlDbType}, Size={p.Size})");
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"[{tag}] Before ExecuteReader()");
+
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        if (reader.Read())
+                        System.Diagnostics.Debug.WriteLine($"[{tag}] After ExecuteReader(), before reader.Read()");
+
+                        bool hasRow = reader.Read();
+
+                        System.Diagnostics.Debug.WriteLine($"[{tag}] After reader.Read(): hasRow={hasRow}");
+
+                        if (hasRow)
                         {
                             return MapUser(reader);
                         }
                     }
                 }
-            }
-            catch (SqlException exception)
-            {
-                throw new DataAccessException("Failed to retrieve user by username.", exception);
+                catch (SqlException exception)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[{tag}] *** SqlException thrown BY ExecuteReader()/reader.Read() ***");
+                    SqlDiagnostics.LogSqlException(tag, exception, debugDataSource, debugDatabase);
+                    throw; // TEMPORARY DIAGNOSTIC — restore `throw new DataAccessException(...)` once root cause confirmed.
+                }
             }
 
             return null;

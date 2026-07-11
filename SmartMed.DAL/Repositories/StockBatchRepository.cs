@@ -48,7 +48,7 @@ namespace SmartMed.DAL.Repositories
         public List<StockBatch> GetByMedicineId(int medicineId)
         {
             const string sql = "SELECT Id, MedicineId, BatchNumber, ExpiryDate, PurchasePrice, SellingPrice, " +
-                               "CurrentQuantity, InitialQuantity, PurchaseItemId, IsActive, CreatedDate, UpdatedDate " +
+                               "CurrentQuantity, InitialQuantity, PurchaseItemId, BatchStatus, IsActive, CreatedDate, UpdatedDate " +
                                "FROM StockBatches WHERE MedicineId = @MedicineId AND IsActive = 1 " +
                                "ORDER BY ExpiryDate ASC, CreatedDate ASC";
             try
@@ -77,7 +77,7 @@ namespace SmartMed.DAL.Repositories
         {
             Guard.AgainstNullOrWhiteSpace(batchNumber, nameof(batchNumber));
             const string sql = "SELECT Id, MedicineId, BatchNumber, ExpiryDate, PurchasePrice, SellingPrice, " +
-                               "CurrentQuantity, InitialQuantity, PurchaseItemId, IsActive, CreatedDate, UpdatedDate " +
+                               "CurrentQuantity, InitialQuantity, PurchaseItemId, BatchStatus, IsActive, CreatedDate, UpdatedDate " +
                                "FROM StockBatches WHERE MedicineId = @MedicineId AND BatchNumber = @BatchNumber AND IsActive = 1";
             try
             {
@@ -103,7 +103,7 @@ namespace SmartMed.DAL.Repositories
         public List<StockBatch> GetFIFOBatches(int medicineId, int quantity)
         {
             const string sql = "SELECT Id, MedicineId, BatchNumber, ExpiryDate, PurchasePrice, SellingPrice, " +
-                               "CurrentQuantity, InitialQuantity, PurchaseItemId, IsActive, CreatedDate, UpdatedDate " +
+                               "CurrentQuantity, InitialQuantity, PurchaseItemId, BatchStatus, IsActive, CreatedDate, UpdatedDate " +
                                "FROM StockBatches WHERE MedicineId = @MedicineId AND IsActive = 1 " +
                                "AND CurrentQuantity > 0 " +
                                "ORDER BY ExpiryDate ASC, CreatedDate ASC";

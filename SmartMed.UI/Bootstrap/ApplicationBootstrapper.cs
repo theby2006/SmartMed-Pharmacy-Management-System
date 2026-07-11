@@ -81,6 +81,7 @@ namespace SmartMed.UI.Bootstrap
         {
             string connectionString = AppSettings.GetConnectionString(ConfigKeys.PrimaryConnectionStringName);
             IDbConnectionFactory dbConnectionFactory = new SqlConnectionFactory(connectionString);
+            DatabaseConnectivityChecker.VerifyConnection(dbConnectionFactory);
 
             _passwordHasher = new PasswordHasher();
             _userRepository = new UserRepository(dbConnectionFactory);

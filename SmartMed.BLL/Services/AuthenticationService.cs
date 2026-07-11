@@ -149,9 +149,6 @@ namespace SmartMed.BLL.Services
                 return OperationResult<SessionContext>.Failure("Invalid PIN format.");
             }
 
-            System.Diagnostics.Debug.WriteLine(
-                $"[CUSTOMER-LOOKUP-DEBUG] AuthenticationService.LoginCustomer: identifier='{identifier}', customerPinEnabled={customerPinEnabled}"); // TEMPORARY — remove after diagnosing
-
             Customer customer;
             try
             {

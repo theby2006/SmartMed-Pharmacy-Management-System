@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using SmartMed.Common.Exceptions;
 using SmartMed.Common.Helpers;
-using SmartMed.DAL.Infrastructure;
 using SmartMed.DAL.Interfaces;
 using SmartMed.Models.Entities;
 
@@ -50,68 +49,23 @@ namespace SmartMed.DAL.Repositories
         {
             Guard.AgainstNullOrWhiteSpace(identifier, nameof(identifier));
             string sql = SelectColumns + " WHERE PhoneNumber = @Identifier OR Email = @Identifier";
-            const string tag = "CUSTOMER-LOOKUP-DEBUG";
-
-            using (SqlConnection connection = _connectionFactory.CreateConnection())
-            using (SqlCommand command = new SqlCommand(sql, connection))
+            try
             {
-                string debugDataSource = connection.DataSource;
-                string debugDatabase = connection.Database;
-                command.Parameters.AddWithValue("@Identifier", identifier);
-
-                // Step 1: Open() — caught separately so an Open()-time failure
-                // (connection/auth/network) can never be confused with an
-                // ExecuteReader()-time failure (query/permission/lock).
-                try
+                using (SqlConnection connection = _connectionFactory.CreateConnection())
+                using (SqlCommand command = new SqlCommand(sql, connection))
                 {
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[{tag}] Before connection.Open(): DataSource='{debugDataSource}', " +
-                        $"Database='{debugDatabase}', State={connection.State}");
-
+                    command.Parameters.AddWithValue("@Identifier", identifier);
                     connection.Open();
-
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[{tag}] After connection.Open(): State={connection.State}, " +
-                        $"ServerVersion='{connection.ServerVersion}', connection.Database='{connection.Database}'");
-                }
-                catch (SqlException exception)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[{tag}] *** SqlException thrown BY connection.Open() ***");
-                    SqlDiagnostics.LogSqlException(tag, exception, debugDataSource, debugDatabase);
-                    throw; // TEMPORARY DIAGNOSTIC — restore `throw new DataAccessException(...)` once root cause confirmed.
-                }
-
-                // Step 2: build/execute the command — caught separately from Open().
-                try
-                {
-                    System.Diagnostics.Debug.WriteLine($"[{tag}] CommandText='{command.CommandText}'");
-                    foreach (SqlParameter p in command.Parameters)
-                    {
-                        System.Diagnostics.Debug.WriteLine(
-                            $"[{tag}] Parameter {p.ParameterName} = '{p.Value}' (SqlDbType={p.SqlDbType}, Size={p.Size})");
-                    }
-
-                    System.Diagnostics.Debug.WriteLine($"[{tag}] Before ExecuteReader()");
-
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        System.Diagnostics.Debug.WriteLine($"[{tag}] After ExecuteReader(), before reader.Read()");
-
-                        bool hasRow = reader.Read();
-
-                        System.Diagnostics.Debug.WriteLine($"[{tag}] After reader.Read(): hasRow={hasRow}");
-
-                        if (hasRow) return MapCustomer(reader);
+                        if (reader.Read()) return MapCustomer(reader);
                     }
                 }
-                catch (SqlException exception)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[{tag}] *** SqlException thrown BY ExecuteReader()/reader.Read() ***");
-                    SqlDiagnostics.LogSqlException(tag, exception, debugDataSource, debugDatabase);
-                    throw; // TEMPORARY DIAGNOSTIC — restore `throw new DataAccessException(...)` once root cause confirmed.
-                }
             }
-
+            catch (SqlException exception)
+            {
+                throw new DataAccessException("Failed to retrieve customer by phone or email.", exception);
+            }
             return null;
         }
 
